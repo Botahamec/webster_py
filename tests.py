@@ -51,7 +51,22 @@ def definition_fetch():
 	for key, value in food.properties.items():
 		print("    " + key + ": " + value.__class__.__name__)
 	
-	try: error = webster.get_definition("Money")
+	try: webster.get_definition("Money")
 	except: print("An error returned, as expected")
 
 	print("Dictionary Length: " + str(len(webster.dictionary)))
+
+# test Webster.add_object()
+def object_addition():
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name" : None,
+									"Group": None,
+									"Taste": None})
+	webster.add_object("0", "Food")
+	print("Type: " + webster.memory[0].__class__.__name__)
+	print("Name: " + webster.memory[0].name)
+	print("Properties Type: " + webster.memory[0].properties.__class__.__name__)
+	print("Properties:")
+	for key, value in webster.memory[0].properties.items():
+		print("    " + key + ": " + value.__class__.__name__)
+	print("Memory Length: " + str(len(webster.memory)))
