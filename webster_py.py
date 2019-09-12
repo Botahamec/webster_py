@@ -38,6 +38,8 @@ class Webster:
 	def add_definition(self, name, properties):
 		"""
 		This function creates a new definition.
+		name: The name of the definition
+		properties: The dictionary of properties to be added to the definition
 		"""
 		self.dictionary.append(Object(name, properties)) # pretty much just calls the Object constructor
 	
