@@ -70,3 +70,20 @@ def object_addition():
 	for key, value in webster.memory[0].properties.items():
 		print("    " + key + ": " + value.__class__.__name__)
 	print("Memory Length: " + str(len(webster.memory)))
+
+#test Webster.get_object()
+def object_fetch():
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                	"Group": None,
+                                	"Taste": None})
+	webster.add_object("0", "Food")
+	food = webster.get_object("0")
+
+	print("Type: " + food.__class__.__name__)
+	print("Name: " + food.name)
+	print("Properties Type: " + food.properties.__class__.__name__)
+	print("Properties:")
+	for key, value in food.properties.items():
+		print("    " + key + ": " + value.__class__.__name__)
+	print("Memory Length: " + str(len(webster.memory)))

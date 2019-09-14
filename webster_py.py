@@ -60,3 +60,12 @@ class Webster:
 		"""
 
 		self.memory.append(Object(id, self.get_definition(definition).properties))
+	
+	def get_object(self, id):
+		"""
+		This function gets an object from memory with the specified id
+		"""
+
+		for object in self.memory:
+			if object.name == id: return object
+		raise Exception("no object of the given id found")
