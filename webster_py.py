@@ -156,3 +156,35 @@ class Webster:
 		"""
 
 		self.dictionary[self._get_definition_index(defn)].properties[name]=val
+
+	def object_has_property(self, object, property):
+		"""
+		Returns true if the object has the property specified
+		"""
+
+		for key in self.get_object(object).properties.keys():
+			if property == key: return True
+		return False
+	
+	def definition_has_property(self, definition, property):
+		"""
+		Returns true if the definition has the property specified
+		"""
+
+		for key in self.get_definition(definition).properties.keys():
+			if property == key: return True
+		return False
+
+	def object_has_definition(self, object, definition):
+		"""
+		Compares an object's properties with a definition's properties
+		Returns true if the two are similar
+		"""
+
+		for name, value in definition.properties.items():
+			if self.object_has_property(object, property):
+				if value == None:continue
+				elif self.get_object_property(object, name) == value: continue
+				else: return False
+			else: return False
+		return True

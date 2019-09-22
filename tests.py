@@ -283,3 +283,44 @@ def set_object_properties():
 
 	for name, value in webster.get_object("Apple").properties.items():
 		print(name + ": " + str(value))
+
+# test Webster.object_has_property()
+def check_whether_object_has_properties():
+	
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                	"Group": None,
+                                	"Taste": None})
+	webster.add_object("Apple", "Food")
+
+	name = webster.object_has_property("Apple", "Name")
+	group = webster.object_has_property("Apple", "Group")
+	taste = webster.object_has_property("Apple", "Taste")
+	species = webster.object_has_property("Apple", "Species")
+	color = webster.object_has_property("Apple", "Color")
+
+	print("Contains Name:", name)
+	print("Contains Group:", group)
+	print("Contains Taste:", taste)
+	print("Contains Species:", species)
+	print("Contains Color:", color)
+
+# test Webster.definition_has_property()
+def check_whether_definition_has_properties():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                	"Group": None,
+                                	"Taste": None})
+
+	name = webster.definition_has_property("Food", "Name")
+	group = webster.definition_has_property("Food", "Group")
+	taste = webster.definition_has_property("Food", "Taste")
+	species = webster.definition_has_property("Food", "Species")
+	color = webster.definition_has_property("Food", "Color")
+
+	print("Contains Name:", name)
+	print("Contains Group:", group)
+	print("Contains Taste:", taste)
+	print("Contains Species:", species)
+	print("Contains Color:", color)
