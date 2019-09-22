@@ -2,7 +2,7 @@
 Webster is a framework which will in the future be used for AI
 Currently is not very useful other than being used to store known information
 The definitions are currently the same as the actual objects, which isn't good
-However, I will call this 1.0, because it does most of what I expect 1.0 to do
+However, I will call this 0.1, but it does most of what I expect 1.0 to do
 The problem is that the rest of what I want it to do in unpractical
 It's supposed to used an advanced version of dynamic typing
 Changing definitions should be able to change the value of objects in memory
