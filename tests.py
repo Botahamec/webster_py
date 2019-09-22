@@ -197,3 +197,20 @@ def check_object_properties():
 	print("Taste: " + taste)
 	print("Species: " + str(species))
 	print("Color: " + str(color))
+
+# test Webster.definition_of_type()
+def definition_clone():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                 "Group": None,
+                                 "Taste": None})
+	webster.definition_of_type("Apple", "Food")
+
+	name = webster.get_definition_property("Apple", "Name")
+	group = webster.get_definition_property("Apple", "Group")
+	taste = webster.get_definition_property("Apple", "Taste")
+
+	print("Name: " + str(name))
+	print("Group: " + str(group))
+	print("Taste: " + str(taste))
