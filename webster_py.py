@@ -140,3 +140,19 @@ class Webster:
 			if list(self.memory[object_index].properties.keys())[index] == property:
 				return index # return the index of property with matching name
 		raise Exception("No property of given name found") # if none found
+
+	def set_object_property(self, object, name, val):
+		"""
+		This function sets the value of a property for an object in memory
+		If the property doesn't exist, then it is added
+		"""
+
+		self.memory[self._get_object_index(object)].properties[name] = val
+	
+	def set_definition_property(self, defn, name, val):
+		"""
+		This function the value of a property for a definition
+		If the property doesn't exist it'll be added
+		"""
+
+		self.dictionary[self._get_definition_index(defn)].properties[name]=val

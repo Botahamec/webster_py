@@ -247,3 +247,39 @@ def check_object_property_index():
 	print("Name Index: " + name_index)
 	print("Group Index: " + group_index)
 	print("Taste Index: " + taste_index)
+
+# test Webster.set_object_property()
+def set_definition_properties():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                	"Group": None,
+                                	"Taste": None})
+	webster.definition_of_type("Apple", "Food")
+
+	webster.set_definition_property("Apple", "Name", "Apple")
+	webster.set_definition_property("Apple", "Group", "Fruit")
+	webster.set_definition_property("Apple", "Taste", "Sweet")
+	webster.set_definition_property("Apple", "Species", None)
+	webster.set_definition_property("Apple", "Color", None)
+
+	for name, value in webster.get_definition("Apple").properties.items():
+		print(name + ": " + str(value))
+
+# test Webster.set_object_property()
+def set_object_properties():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                	"Group": None,
+                                	"Taste": None})
+	webster.add_object("Apple", "Food")
+
+	webster.set_object_property("Apple", "Name", "Apple")
+	webster.set_object_property("Apple", "Group", "Fruit")
+	webster.set_object_property("Apple", "Taste", "Sweet")
+	webster.set_object_property("Apple", "Species", None)
+	webster.set_object_property("Apple", "Color", None)
+
+	for name, value in webster.get_object("Apple").properties.items():
+		print(name + ": " + str(value))
