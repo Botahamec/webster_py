@@ -1,3 +1,34 @@
+"""
+Webster is a framework which will in the future be used for AI
+Currently is not very useful other than being used to store known information
+The definitions are currently the same as the actual objects, which isn't good
+However, I will call this 1.0, because it does most of what I expect 1.0 to do
+The problem is that the rest of what I want it to do in unpractical
+It's supposed to used an advanced version of dynamic typing
+Changing definitions should be able to change the value of objects in memory
+But this doesn't make much sense to implement
+Imagine I learned that emeralds are green but I thought rubies were emeralds
+I wouldn't then conclude that rubies are green
+I'd just say that rubies aren't emeralds
+Anyway, here's a list of features I'll add in the future to make it better
+-------------------------------------------------------------------------------
+Definitions and Objects need to be separate classes
+There needs to be a special DictionaryProperty class
+The DictionaryProperty class will be much more robust
+It will contain a binary operator, which an object will need to fulfill
+Dictionaries should also have a list of digital "makefiles"
+The makefiles should help the objects figure out their own properties
+Definitions also should have a list of adjectives
+Adjectives are boolean functions which are based on the object's properties
+This requires a digital "programming language"
+That's a completely different project though so I won't implement that soon
+I'd also like somehow a list of the definition's abilities
+These are abilities that an object of the definition can theoretically perform
+This however is currently not a reasonable expectation
+-------------------------------------------------------------------------------
+If you have questions, suggestions, or ways to improve contact me:
+My email is botahamec@outlook.com
+"""
 
 # a definition or an object
 class Object:
@@ -148,7 +179,7 @@ class Webster:
 		"""
 
 		self.memory[self._get_object_index(object)].properties[name] = val
-	
+
 	def set_definition_property(self, defn, name, val):
 		"""
 		This function the value of a property for a definition
@@ -183,7 +214,7 @@ class Webster:
 
 		for name, value in definition.properties.items():
 			if self.object_has_property(object, property):
-				if value == None:continue
+				if value == None: continue
 				elif self.get_object_property(object, name) == value: continue
 				else: return False
 			else: return False

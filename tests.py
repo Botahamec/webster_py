@@ -155,7 +155,6 @@ def index_of_objects():
 
 # test Webster.get_definition_property()
 def check_definition_properties():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Apple", {"Name": "Apple",
                                   	 "Group": "Fruit",
@@ -177,7 +176,6 @@ def check_definition_properties():
 
 # test Webster.get_object_property()
 def check_object_properties():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Apple", {"Name": "Apple",
                                   	 "Group": "Fruit",
@@ -200,7 +198,6 @@ def check_object_properties():
 
 # test Webster.definition_of_type()
 def definition_clone():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
                                  "Group": None,
@@ -217,7 +214,6 @@ def definition_clone():
 
 # test Webster._get_definition_property_index()
 def check_definition_property_index():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
                             		"Group": None,
@@ -233,7 +229,6 @@ def check_definition_property_index():
 
 # test Webster._get_object_property_index()
 def check_object_property_index():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
                                 	"Group": None,
@@ -250,7 +245,6 @@ def check_object_property_index():
 
 # test Webster.set_object_property()
 def set_definition_properties():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
                                 	"Group": None,
@@ -268,7 +262,6 @@ def set_definition_properties():
 
 # test Webster.set_object_property()
 def set_object_properties():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
                                 	"Group": None,
@@ -285,8 +278,7 @@ def set_object_properties():
 		print(name + ": " + str(value))
 
 # test Webster.object_has_property()
-def check_whether_object_has_properties():
-	
+def check_whether_object_has_properties():	
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
                                 	"Group": None,
@@ -307,7 +299,6 @@ def check_whether_object_has_properties():
 
 # test Webster.definition_has_property()
 def check_whether_definition_has_properties():
-
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
                                 	"Group": None,
