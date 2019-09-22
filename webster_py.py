@@ -91,22 +91,30 @@ class Webster:
 			if self.dictionary[index].name == name: return index # reurns index
 		raise Exception("no object of the given id found") # if none found
 
-	def get_property_of_object(self, object_id, property):
+	def definition_of_type(self, new_name, og_def):
+		"""
+		This function creates a new definition with the properties of another
+		This is useful for inheritance
+		"""
+		properties = self.get_definition(og_def).properties # new properties
+		self.add_definition(new_name, properties) # creates new definition
+
+	def get_object_property(self, object_id, property):
 		"""
 		This function returns the value of a property in a given object.
 		"""
 
 		object = self.get_object(object_id) # the object with the given name
-		for name, value in object.properties: # checks all property names
+		for name, value in object.properties.items(): # checks all properties
 			if name == property: return value # returns the value
 		raise Exception("No property of the given name found") # if none found
 
-	def get_property_of_definition(self, definition_name, property):
+	def get_definition_property(self, definition_name, property):
 		"""
 		This function returns the value of a property in a given definition
 		"""
 
 		definition = self.get_definition(definition_name) # the definition
-		for name, value in definition.properties: # checks all properties
+		for name, value in definition.properties.items(): # checks properties
 			if name == property: return value # returns the value
 		raise Exception("No property of the given name found") # if none found

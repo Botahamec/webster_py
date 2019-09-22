@@ -152,3 +152,48 @@ def index_of_objects():
 	print("Purple Index: " + str(webster._get_object_index("Purple")))
 	print("1 Index: " + str(webster._get_object_index("1")))
 	print("3 Index: " + str(webster._get_object_index("3")))
+
+# test Webster.get_definition_property()
+def check_definition_properties():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Apple", {"Name": "Apple",
+                                  	 "Group": "Fruit",
+									 "Taste": "Sweet",
+									 "Species": None,
+									 "Color": None})
+	
+	name = webster.get_definition_property("Apple", "Name")
+	group = webster.get_definition_property("Apple", "Group")
+	taste = webster.get_definition_property("Apple", "Taste")
+	species = webster.get_definition_property("Apple", "Species")
+	color = webster.get_definition_property("Apple", "Color")
+
+	print("Name: " + name)
+	print("Group: " + group)
+	print("Taste: " + taste)
+	print("Species: " + str(species))
+	print("Color: " + str(color))
+
+# test Webster.get_object_property()
+def check_object_properties():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Apple", {"Name": "Apple",
+                                  	 "Group": "Fruit",
+									 "Taste": "Sweet",
+									 "Species": None,
+									 "Color": None})
+	webster.add_object("0", "Apple")
+
+	name = webster.get_object_property("0", "Name")
+	group = webster.get_object_property("0", "Group")
+	taste = webster.get_object_property("0", "Taste")
+	species = webster.get_object_property("0", "Species")
+	color = webster.get_object_property("0", "Color")
+
+	print("Name: " + name)
+	print("Group: " + group)
+	print("Taste: " + taste)
+	print("Species: " + str(species))
+	print("Color: " + str(color))
