@@ -71,7 +71,7 @@ def object_addition():
 		print("    " + key + ": " + value.__class__.__name__)
 	print("Memory Length: " + str(len(webster.memory)))
 
-#test Webster.get_object()
+# test Webster.get_object()
 def object_fetch():
 	webster = webster_py.Webster()
 	webster.add_definition("Food", {"Name": None,
@@ -87,3 +87,68 @@ def object_fetch():
 	for key, value in food.properties.items():
 		print("    " + key + ": " + value.__class__.__name__)
 	print("Memory Length: " + str(len(webster.memory)))
+
+# test Webster._get_definition_index()
+def index_of_definitions():
+
+	# populate the dictionary
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                  	"Group": None,
+                                  	"Taste": None})
+	webster.add_definition("Color", {"General Name": None,
+									 "Specfic Name": None,
+									 "Red": None,
+									 "Green": None,
+									 "Blue": None,
+									 "Hue": None,
+									 "Saturation": None,
+									 "Brightness": None})
+	webster.add_definition("Number", {"Value": None,
+									  "Spelling": None})
+
+	food = webster._get_definition_index("Food")
+	color = webster._get_definition_index("Color")
+	number = webster._get_definition_index("Number")
+
+	print("Food Index: " + str(food))
+	print("Color Index: " + str(color))
+	print("Number Index: " + str(number))
+
+# test Webster._get_object_index()
+def index_of_objects():
+
+	# populate the dictionary
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                 "Group": None,
+                                 "Taste": None})
+	webster.add_definition("Color", {"General Name": None,
+                                  "Specfic Name": None,
+                                  "Red": None,
+                                  "Green": None,
+                                  "Blue": None,
+                                  "Hue": None,
+                                  "Saturation": None,
+                                  "Brightness": None})
+	webster.add_definition("Number", {"Value": None,
+                                   "Spelling": None})
+
+	# populate the memory
+	webster.add_object("Apple", "Food")
+	webster.add_object("Cheese", "Food")
+	webster.add_object("Carrot", "Food")
+	webster.add_object("Red", "Color")
+	webster.add_object("Green", "Color")
+	webster.add_object("Purple", "Color")
+	webster.add_object("1", "Number")
+	webster.add_object("3", "Number")
+
+	print("Apple Index: " + str(webster._get_object_index("Apple")))
+	print("Cheese Index: " + str(webster._get_object_index("Cheese")))
+	print("Carrot Index: " + str(webster._get_object_index("Carrot")))
+	print("Red Index: " + str(webster._get_object_index("Red")))
+	print("Green Index: " + str(webster._get_object_index("Green")))
+	print("Purple Index: " + str(webster._get_object_index("Purple")))
+	print("1 Index: " + str(webster._get_object_index("1")))
+	print("3 Index: " + str(webster._get_object_index("3")))
