@@ -118,3 +118,25 @@ class Webster:
 		"""
 		properties = self.get_definition(og_def).properties  # new properties
 		self.add_definition(new_name, properties)  # creates new definition
+
+	def _get_definition_property_index(self, def_index, property):
+		"""
+		This function returns the index of a specific property of a definition
+		This is meant to be used only for the webster object
+		"""
+
+		for index in range(0, len(self.dictionary[def_index].properties)):
+			if list(self.dictionary[def_index].properties.keys())[index] == property:
+				return index  # return the index of property with matching name
+		raise Exception("No property of given name found")  # if none found
+
+	def _get_object_property_index(self, object_index, property):
+		"""
+		This function returns the index of a specific property of an object
+		This is meant to be used only for the webster object
+		"""
+
+		for index in range(0, len(self.memory[object_index].properties)):
+			if list(self.memory[object_index].properties.keys())[index] == property:
+				return index # return the index of property with matching name
+		raise Exception("No property of given name found") # if none found

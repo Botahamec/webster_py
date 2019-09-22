@@ -214,3 +214,36 @@ def definition_clone():
 	print("Name: " + str(name))
 	print("Group: " + str(group))
 	print("Taste: " + str(taste))
+
+# test Webster._get_definition_property_index()
+def check_definition_property_index():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                            		"Group": None,
+                                	"Taste": None})
+	
+	name_index = str(webster._get_definition_property_index(0, "Name"))
+	group_index = str(webster._get_definition_property_index(0, "Group"))
+	taste_index = str(webster._get_definition_property_index(0, "Taste"))
+
+	print("Name Index: " + name_index)
+	print("Group Index: " + group_index)
+	print("Taste Index: " + taste_index)
+
+# test Webster._get_object_property_index()
+def check_object_property_index():
+
+	webster = webster_py.Webster()
+	webster.add_definition("Food", {"Name": None,
+                                	"Group": None,
+                                	"Taste": None})
+	webster.add_object("Apple", "Food")
+
+	name_index = str(webster._get_object_property_index(0, "Name"))
+	group_index = str(webster._get_object_property_index(0, "Group"))
+	taste_index = str(webster._get_object_property_index(0, "Taste"))
+
+	print("Name Index: " + name_index)
+	print("Group Index: " + group_index)
+	print("Taste Index: " + taste_index)
