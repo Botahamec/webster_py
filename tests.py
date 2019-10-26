@@ -22,18 +22,13 @@ def test(name, expected, value):
 	print("\tResult:", value)
 	return resultbool
 
-def test_list(tests):
-	"""
-	Tests should contain a list of tuples
-	The first element of the tuple should be the name
-	The second element should be the expected value
-	The third element should be the actual value
-	Returns the number of tests that failed
-	"""
+def rule_type_enum():
+	test("RuleType Is", RuleType.IS, RuleType.IS)
 
-	fails = 0
-	for tst in tests:
-		 if not test(tst[0], tst[1], tst[2]):
-		 	fails += 1
+def 
 
-def result_type_enum():
+def run_all_tests():
+	rule_type_enum()
+
+if __name__ == "__main__":
+	run_all_tests()

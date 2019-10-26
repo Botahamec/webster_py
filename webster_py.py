@@ -47,7 +47,7 @@ class Rule:
 	CONTAIN  | any        | A list contains the specified value
 	"""
 
-	def __init__(rule_type: int, value: any):
+	def __init__(self, rule_type: RuleType, value: any):
 		"""
 		Example usage: Rule(RuleType.IS, "Hello!")
 		"""
@@ -57,6 +57,6 @@ class Rule:
 
 class Property:
 
-	def __init__(name: str, rule: Rule):
+	def __init__(self, name: str, rule: Rule):
 		self.name = name
 		self.rule = rule
