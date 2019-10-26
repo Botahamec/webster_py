@@ -70,6 +70,7 @@ def rule_match_contain():
 	test("Rule CONTAIN 1", contain_rule.match("hello"), True)
 	test("Rule CONTAIN 2", contain_rule.match("world"), False)
 
+# test Rule.match(value) when Rule.rule_type == RuleType.XOR
 def rule_match_xor():
 	contain_rule = Rule(RuleType.CONTAIN, 'h')
 	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
@@ -78,6 +79,7 @@ def rule_match_xor():
 	test("Rule XOR 3", xor_rule.match("hello"), False)
 	test("Rule XOR 4", xor_rule.match("animal"), False)
 
+# test Rule.match(value) when Rule.rule_type == RuleType.NOT
 def rule_match_not():
 	not_rule = Rule(RuleType.NOT, Rule(RuleType.IS, 6))
 	test("Rule NOT 1", not_rule.match(3), True)
@@ -94,10 +96,34 @@ def rule_match():
 	rule_match_xor()
 	rule_match_not()
 
-def run_all_tests():
-	rule_type_enum()
+# runs all tests for the Rule Class
+def rule_tests():
 	init_rule()
 	rule_match()
+
+# tests Property.__init()
+def init_property():
+	rule = Rule(RuleType.GREATER, 5)
+	prop = Property("count", rule)
+	test("Property Construction Name", prop.name, "count")
+	test("Property Construction Rule", prop.rule, rule)
+
+# tests Property.match(value)
+def property_match():
+	rule = Rule(RuleType.GREATER, 5)
+	prop = Property("count", rule)
+	test("Property Match 1", prop.match(7), True)
+	test("Property Match 1", prop.match(5), False)
+
+# runs all tests for the Property class
+def prop_tests():
+	init_property()
+	property_match()
+
+def run_all_tests():
+	rule_type_enum()
+	rule_tests()
+	prop_tests()
 
 if __name__ == "__main__":
 	run_all_tests()

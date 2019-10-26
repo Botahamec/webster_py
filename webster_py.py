@@ -84,7 +84,17 @@ class Rule:
 		raise "No valid RuleType found for this Rule"
 
 class Property:
+	"""
+	Attaches a name to a rule, which may contain other rules
+	"""
 
 	def __init__(self, name: str, rule: Rule):
 		self.name = name
 		self.rule = rule
+	
+	def match(self, value: any):
+		"""
+		Returns true if the value satisfies the property
+		Returns false otherwise
+		"""
+		return self.rule.match(value)
