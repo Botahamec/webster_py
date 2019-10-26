@@ -30,35 +30,69 @@ def init_rule():
 	test("Rule Construction Type", rule.rule_type, RuleType.GREATER)
 	test("Rule Construction Value", rule.value, 5)
 
-# tests Rule.match(value)
-def rule_match():
-	test("Rule IS", Rule(RuleType.IS, "Hello").match("Hello"), True)
-	test("Rule IS Failure", Rule(RuleType.IS, "Hello").match("World"), False)
+# test Rule.match(value) when Rule.rule_type == RuleType.IS
+def rule_match_is():
+	test("Rule IS 1", Rule(RuleType.IS, "Hello").match("Hello"), True)
+	test("Rule IS 2", Rule(RuleType.IS, "Hello").match("World"), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.GREATER
+def rule_match_greater():
 	greater_rule = Rule(RuleType.GREATER, 3)
-	test("Rule GREATER", greater_rule.match(5), True)
-	test("Rule GREATER Failure", Rule(RuleType.GREATER, 3).match(1), False)
+	test("Rule GREATER 1", greater_rule.match(5), True)
+	test("Rule GREATER 2", Rule(RuleType.GREATER, 3).match(1), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.LESS
+def rule_match_less():
 	less_rule = Rule(RuleType.LESS, 10)
-	test("Rule LESS", less_rule.match(1), True)
-	test("Rule LESS Failure", less_rule.match(12), False)
+	test("Rule LESS 1", less_rule.match(1), True)
+	test("Rule LESS 2", less_rule.match(12), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.AND
+def rule_match_and():
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
 	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
-	test("Rule AND", and_rule.match(7), True)
-	test("Rule AND Failure 1", and_rule.match(0), False)
-	test("Rule AND Failure 2", and_rule.match(15), False)
+	test("Rule AND 1", and_rule.match(7), True)
+	test("Rule AND 2", and_rule.match(0), False)
+	test("Rule AND 3", and_rule.match(15), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.OR
+def rule_match_or():
+	greater_rule = Rule(RuleType.GREATER, 3)
 	or_rule = Rule(RuleType.OR, [Rule(RuleType.IS, 3), greater_rule])
 	test("Rule OR 1", or_rule.match(3), True)
 	test("Rule OR 2", or_rule.match(5), True)
-	test("Rule OR Failure", or_rule.match(-3), False)
+	test("Rule OR 3", or_rule.match(-3), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.OR
+def rule_match_contain():
 	contain_rule = Rule(RuleType.CONTAIN, 'h')
-	test("Rule CONTAINS", contain_rule.match("hello"), True)
-	test("Rule CONTAINS Failure", contain_rule.match("world"), False)
+	test("Rule CONTAIN 1", contain_rule.match("hello"), True)
+	test("Rule CONTAIN 2", contain_rule.match("world"), False)
+
+def rule_match_xor():
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
 	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
 	test("Rule XOR 1", xor_rule.match("world"), True)
 	test("Rule XOR 2", xor_rule.match("help"), True)
-	test("Rule XOR Failure 1", xor_rule.match("hello"), False)
-	test("Rule XOR Failure 2", xor_rule.match("animal"), False)
+	test("Rule XOR 3", xor_rule.match("hello"), False)
+	test("Rule XOR 4", xor_rule.match("animal"), False)
+
+def rule_match_not():
 	not_rule = Rule(RuleType.NOT, Rule(RuleType.IS, 6))
-	test("Rule NOT", not_rule.match(3), True)
-	test("Rule NOT Failure", not_rule.match(6), False)
+	test("Rule NOT 1", not_rule.match(3), True)
+	test("Rule NOT 2", not_rule.match(6), False)
+
+# tests Rule.match(value)
+def rule_match():
+	rule_match_is()
+	rule_match_greater()
+	rule_match_less()
+	rule_match_and()
+	rule_match_or()
+	rule_match_contain
+	rule_match_xor()
+	rule_match_not()
 
 def run_all_tests():
 	rule_type_enum()

@@ -1,0 +1,4 @@
+Add rule to convert value to rule
+Add basic math operation rules (ADD, SUB, MULT, DIV, MOD)
+Add loop rules (FOR, WHILE)
+Add rule to create a value
