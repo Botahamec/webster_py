@@ -54,6 +54,34 @@ class Rule:
 
 		self.rule_type = rule_type
 		self.value = value
+	
+	def match(self, value):
+		"""
+		Checks to see if the given value obeys the rule
+		Returns true if it does, false otherwise
+		"""
+
+		if self.rule_type == RuleType.IS: return value == self.value
+		elif self.rule_type == RuleType.GREATER: return value > self.value
+		elif self.rule_type == RuleType.LESS: return value < self.value
+		elif self.rule_type == RuleType.AND:
+			for rule in self.value:
+				if not rule.match(value): return False
+			return True
+		elif self.rule_type == RuleType.OR:
+			for rule in self.value:
+				if rule.match(value): return True
+			return False
+		elif self.rule_type == RuleType.XOR:
+			checks = 0
+			for rule in self.value:
+				if rule.match(value): checks += 1
+				if checks > 1: return False
+			if checks == 1: return True                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+			return False
+		elif self.rule_type == RuleType.NOT: return not self.value.match(value)
+		elif self.rule_type == RuleType.CONTAIN: return self.value in value
+		raise "No valid RuleType found for this Rule"
 
 class Property:
 
