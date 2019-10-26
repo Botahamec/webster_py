@@ -13,22 +13,27 @@ def test(name, expected, value):
 
 	if expected == value:
 		resultstr = "PASSED"
+		print("Testing", name + ":", resultstr)
 		resultbool = True
 	else:
 		resultstr = "FAILED"
 		resultbool = False
-	print("Testing", name + ":", resultstr)
-	print("\tExpected:", expected)
-	print("\tResult:", value)
+		print("Testing", name + ":", resultstr)
+		print("\tExpected:", expected)
+		print("\tResult:", value)
 	return resultbool
 
 def rule_type_enum():
 	test("RuleType Is", RuleType.IS, RuleType.IS)
 
-def 
+def init_rule():
+	rule = Rule(RuleType.GREATER, 5)
+	test("Rule Construction Type", rule.rule_type, RuleType.GREATER)
+	test("Rule Construction Value", rule.value, 5)
 
 def run_all_tests():
 	rule_type_enum()
+	init_rule()
 
 if __name__ == "__main__":
 	run_all_tests()
