@@ -87,6 +87,7 @@ class Property:
 		Returns true if the value satisfies the property
 		Returns false otherwise
 		"""
+
 		return self.rule.match(value)
 
 class Definition:
@@ -100,6 +101,7 @@ class Definition:
 		name: the name of the definition
 		props: a list of properties, which will be converted to a dictionary
 		"""
+
 		self.name = name
 		self.props = {}
 		for prop in props:
@@ -111,6 +113,7 @@ class Definition:
 		A thing must match all properties to match the definition
 		It also satisfies the definition is it's already defined as doing so
 		"""
+
 		if thing.definition == self.name:
 			return True
 		for prop in self.props:
@@ -133,6 +136,7 @@ class Thing:
 		props: a list of properties for the Thing
 		definition: the name of the definition for the thing
 		"""
+
 		self.identifier = identifier
 		self.definition = None
 		if definition != None:
@@ -141,3 +145,25 @@ class Thing:
 			self.attrs = {}
 		else:
 			self.attrs = attributes
+
+class Webster:
+	"""
+	A container for all the information
+	Contains a hashmap for its brain and dictionary
+	The brain contains things while the dictionary contains definitions
+	"""
+
+	def __init__(self, brain = None, dictionary = None):
+		"""
+		Brain and dictionary are both lists
+		They contain things and definitions, respectively
+		"""
+
+		self.brain = {}
+		if brain != None:
+			for thing in brain:
+				self.brain[thing.identifier] = thing
+		self.dictionary = {}
+		if dictionary != None:
+			for definition in dictionary:
+				self.dictionary[definition.name] = definition

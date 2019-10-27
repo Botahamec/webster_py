@@ -1,5 +1,5 @@
 """
-Tests for Webster 1.0
+Tests for Webster 0.2
 """
 
 from webster_py import *
@@ -12,10 +12,10 @@ def test(name, result, expected):
 	"""
 
 	if result == expected:
-		print("Testing", name + ": PASSED")
+		print(name + ": PASSED")
 		return True
 	else:
-		print("Testing", name + ": FAILED")
+		print(name + ": FAILED")
 		print("\tExpected:", expected)
 		print("\tResult:", result)
 		return False
@@ -167,6 +167,33 @@ def init_thing():
 	test("Thing Construction Properties", thing.attrs, attrs)
 	test("Thing Construction Definition", thing.definition, "TestyDef")
 
+# tests Webster.__init__()
+def init_webster():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+
+	# defines Webster
+	webster = Webster([thing], [definition])
+	dict_test = webster.dictionary["TestyDef"]
+	test("Webster Construction Dictionary", dict_test, definition)
+	test("Webster Construction Brain", webster.brain["TestyThingy"], thing)
+
 # tests RuleType enumerator
 def rule_type_enum():
 	test("RuleType Is", RuleType.IS, RuleType.IS)
@@ -190,12 +217,17 @@ def def_tests():
 def thing_tests():
 	init_thing()
 
+# runs all tests for the Webster class
+def webster_tests():
+	init_webster()
+
 def run_all_tests():
 	rule_type_enum()
 	rule_tests()
 	prop_tests()
 	def_tests()
 	thing_tests()
+	webster_tests()
 
 if __name__ == "__main__":
 	run_all_tests()
