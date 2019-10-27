@@ -2,7 +2,7 @@
 Tests for Webster 1.0
 """
 
-from webster_py import *
+from webster_py import RuleType, Rule, Property, Definition
 
 def test(name, result, expected):
 	"""
@@ -20,16 +20,6 @@ def test(name, result, expected):
 		print("\tResult:", result)
 		return False
 
-# tests RuleType enumerator
-def rule_type_enum():
-	test("RuleType Is", RuleType.IS, RuleType.IS)
-
-# tests Rule.__init__()
-def init_rule():
-	rule = Rule(RuleType.GREATER, 5)
-	test("Rule Construction Type", rule.rule_type, RuleType.GREATER)
-	test("Rule Construction Value", rule.value, 5)
-
 # test Rule.match(value) when Rule.rule_type == RuleType.IS
 def rule_match_is():
 	test("Rule IS 1", Rule(RuleType.IS, "Hello").match("Hello"), True)
@@ -37,13 +27,13 @@ def rule_match_is():
 
 # test Rule.match(value) when Rule.rule_type == RuleType.GREATER
 def rule_match_greater():
-	greater_rule = Rule(RuleType.GREATER, 3)
+	greater_rule = Rule(RuleType.GREATER, 3) # greater than 3
 	test("Rule GREATER 1", greater_rule.match(5), True)
 	test("Rule GREATER 2", Rule(RuleType.GREATER, 3).match(1), False)
 
 # test Rule.match(value) when Rule.rule_type == RuleType.LESS
 def rule_match_less():
-	less_rule = Rule(RuleType.LESS, 10)
+	less_rule = Rule(RuleType.LESS, 10) # less than 10
 	test("Rule LESS 1", less_rule.match(1), True)
 	test("Rule LESS 2", less_rule.match(12), False)
 
@@ -51,7 +41,7 @@ def rule_match_less():
 def rule_match_and():
 	greater_rule = Rule(RuleType.GREATER, 3)
 	less_rule = Rule(RuleType.LESS, 10)
-	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule]) # between 3 & 10
 	test("Rule AND 1", and_rule.match(7), True)
 	test("Rule AND 2", and_rule.match(0), False)
 	test("Rule AND 3", and_rule.match(15), False)
@@ -59,14 +49,14 @@ def rule_match_and():
 # test Rule.match(value) when Rule.rule_type == RuleType.OR
 def rule_match_or():
 	greater_rule = Rule(RuleType.GREATER, 3)
-	or_rule = Rule(RuleType.OR, [Rule(RuleType.IS, 3), greater_rule])
+	or_rule = Rule(RuleType.OR, [Rule(RuleType.IS, 3), greater_rule]) # >= 3
 	test("Rule OR 1", or_rule.match(3), True)
 	test("Rule OR 2", or_rule.match(5), True)
 	test("Rule OR 3", or_rule.match(-3), False)
 
 # test Rule.match(value) when Rule.rule_type == RuleType.OR
 def rule_match_contain():
-	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	contain_rule = Rule(RuleType.CONTAIN, 'h') # contains letter h
 	test("Rule CONTAIN 1", contain_rule.match("hello"), True)
 	test("Rule CONTAIN 2", contain_rule.match("world"), False)
 
@@ -81,9 +71,15 @@ def rule_match_xor():
 
 # test Rule.match(value) when Rule.rule_type == RuleType.NOT
 def rule_match_not():
-	not_rule = Rule(RuleType.NOT, Rule(RuleType.IS, 6))
+	not_rule = Rule(RuleType.NOT, Rule(RuleType.IS, 6)) # not 6
 	test("Rule NOT 1", not_rule.match(3), True)
 	test("Rule NOT 2", not_rule.match(6), False)
+
+# tests Rule.__init__()
+def init_rule():
+	rule = Rule(RuleType.GREATER, 5)
+	test("Rule Construction Type", rule.rule_type, RuleType.GREATER)
+	test("Rule Construction Value", rule.value, 5)
 
 # tests Rule.match(value)
 def rule_match():
@@ -95,11 +91,6 @@ def rule_match():
 	rule_match_contain
 	rule_match_xor()
 	rule_match_not()
-
-# runs all tests for the Rule Class
-def rule_tests():
-	init_rule()
-	rule_match()
 
 # tests Property.__init()
 def init_property():
@@ -115,15 +106,52 @@ def property_match():
 	test("Property Match 1", prop.match(7), True)
 	test("Property Match 1", prop.match(5), False)
 
+# tests Definition.__init__()
+def init_definition():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyThingy", [name_prop, valu_prop])
+
+	# the expected value of definition.prop
+	exp_prop = {"Name": name_prop, "Value": valu_prop}
+
+	test("Definition Construction Name", definition.name, "TestyThingy")
+	test("Definition Construction Properties", definition.props, exp_prop)
+
+# tests RuleType enumerator
+def rule_type_enum():
+	test("RuleType Is", RuleType.IS, RuleType.IS)
+
+# runs all tests for the Rule Class
+def rule_tests():
+	init_rule()
+	rule_match()
+
 # runs all tests for the Property class
 def prop_tests():
 	init_property()
 	property_match()
 
+# runs all tests for the Definition class
+def def_tests():
+	init_definition()
+
 def run_all_tests():
 	rule_type_enum()
 	rule_tests()
 	prop_tests()
+	def_tests()
 
 if __name__ == "__main__":
 	run_all_tests()

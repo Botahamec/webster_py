@@ -7,16 +7,6 @@ classes:
 	Definition
 	Thing
 	Webster
-
-rules:
-	is
-	greater
-	less
-	and
-	or
-	xor
-	not
-	contain
 """
 
 from enum import Enum
@@ -55,7 +45,7 @@ class Rule:
 		self.rule_type = rule_type
 		self.value = value
 	
-	def match(self, value):
+	def match(self, value: any) -> bool:
 		"""
 		Checks to see if the given value obeys the rule
 		Returns true if it does, false otherwise
@@ -92,9 +82,38 @@ class Property:
 		self.name = name
 		self.rule = rule
 	
-	def match(self, value: any):
+	def match(self, value: any) -> bool:
 		"""
 		Returns true if the value satisfies the property
 		Returns false otherwise
 		"""
 		return self.rule.match(value)
+
+class Definition:
+	"""
+	Essentially a name linked to a set of properties
+	All properties must match a given thing for it to match the definition
+	"""
+
+	def __init__(self, name: str, props):
+		"""
+		name: the name of the definition
+		props: a list of properties, which will be converted to a dictionary
+		"""
+		self.name = name
+		self.props = {}
+		for prop in props:
+			self.props[prop.name] = prop
+	
+	def match(self, thing) -> bool:
+		"""
+		Returns true if the definition is a match, false otherwise
+		A thing must match all properties to match the definition
+		"""
+		for prop in self.props:
+			if prop.name in thing.props:
+				if not prop.match(thing.props[prop.name]):
+					return False
+			else:
+				return False
+		return True
