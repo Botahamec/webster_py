@@ -20,6 +20,10 @@ def test(name, result, expected):
 		print("\tResult:", result)
 		return False
 
+# -----------------------------------------------------------------------------
+# -------------------------- RULE TESTS ---------------------------------------
+# -----------------------------------------------------------------------------
+
 # test Rule.match(value) when Rule.rule_type == RuleType.IS
 def rule_match_is():
 	test("Rule IS 1", Rule(RuleType.IS, "Hello").match("Hello"), True)
@@ -74,6 +78,10 @@ def rule_match_not():
 	not_rule = Rule(RuleType.NOT, Rule(RuleType.IS, 6)) # not 6
 	test("Rule NOT 1", not_rule.match(3), True)
 	test("Rule NOT 2", not_rule.match(6), False)
+
+# -----------------------------------------------------------------------------
+# -------------------------- METHOD TESTS -------------------------------------
+# -----------------------------------------------------------------------------
 
 # tests Rule.__init__()
 def init_rule():
@@ -220,6 +228,7 @@ def webster_get_definition():
 	test_result = webster.get_definition("TestyDef")
 	test("Webster Get Definition", test_result, definition)
 
+# test Webster.get_thing(identifier)
 def webster_get_thing():
 
 	# define a thing
@@ -230,6 +239,10 @@ def webster_get_thing():
 
 	# run test
 	test("Webster Get Thing", webster.get_thing("TestyThingy"), thing)
+
+# -----------------------------------------------------------------------------
+# -------------------------- CLASS TESTS --------------------------------------
+# -----------------------------------------------------------------------------
 
 # tests RuleType enumerator
 def rule_type_enum():
@@ -259,6 +272,11 @@ def webster_tests():
 	init_webster()
 	webster_get_definition()
 	webster_get_thing()
+	webster_add_definition()
+
+# -----------------------------------------------------------------------------
+# -------------------------- RUN ALL TESTS ------------------------------------
+# -----------------------------------------------------------------------------
 
 def run_all_tests():
 	rule_type_enum()

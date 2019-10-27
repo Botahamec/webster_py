@@ -45,6 +45,13 @@ class Rule:
 		self.rule_type = rule_type
 		self.value = value
 	
+
+	def __eq__(self, other):
+		if not isinstance(other, Rule):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.rule_type == other.rule_type and self.value == other.value
+
 	def match(self, value: any) -> bool:
 		"""
 		Checks to see if the given value obeys the rule
@@ -82,6 +89,12 @@ class Property:
 		self.name = name
 		self.rule = rule
 	
+	def __eq__(self, other):
+		if not isinstance(other, Property):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.name == other.name and self.rule == other.rule
+	
 	def match(self, value: any) -> bool:
 		"""
 		Returns true if the value satisfies the property
@@ -107,6 +120,12 @@ class Definition:
 		for prop in props:
 			self.props[prop.name] = prop
 	
+	def __eq__(self, other):
+		if not isinstance(other, Definition):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.name == other.name and self.props == other.props
+
 	def match(self, thing) -> bool:
 		"""
 		Returns true if the definition is a match, false otherwise
@@ -145,6 +164,15 @@ class Thing:
 			self.attrs = {}
 		else:
 			self.attrs = attributes
+	
+	def __eq__(self, other):
+		if not isinstance(other, Thing):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		ident_eq = self.identifier == other.identifier
+		attrs_eq = self.attrs == other.attrs
+		defin_eq = self.definition == other.definition
+		return ident_eq and attrs_eq and defin_eq
 
 class Webster:
 	"""
@@ -168,16 +196,43 @@ class Webster:
 			for definition in dictionary:
 				self.dictionary[definition.name] = definition
 	
-	def get_definition(self, name):
+	def __eq__(self, other):
+		if not isinstance(other, Webster):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		brain = self.brain
+		dictionary = self.dictionary
+		return brain == other.brain and dictionary == other.dictionary
+	
+	def get_definition(self, name: str) -> Definition:
 		"""
 		Gets a definition from the dictionary from its name
 		"""
 
 		return self.dictionary[name]
 	
-	def get_thing(self, identifier):
+	def get_thing(self, identifier: str) -> Thing:
 		"""
 		Gets a definition from the brain based on its identifier
 		"""
 
 		return self.brain[identifier]
+	
+	def add_definition(self, name: str, props) -> Definition:
+		"""
+		Adds a definition to the dictionary
+		Returns the new definition
+		"""
+
+		self.dictionary[name] = Definition(name, props)
+	
+	def add_thing(self, identifier, attributes=None, definition=None) -> Thing:
+		"""
+		Adds a dthing to the brain
+		Returns the new thing
+		"""
+
+		new_thing = Thing(identifier,
+							attributes=attributes,
+							definition=definition)
+		self.brain[identifier] = new_thing
