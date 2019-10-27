@@ -15,8 +15,8 @@ def test(name, result, expected):
 		print("\033[32m" + name + ": PASSED" + "\033[0m")
 		return True
 	else:
-		print("\033[91m" + name + ": FAILED" + "\033[0m")
-		print("\033[91m" + "\tExpected:", expected, "\033[0m")
+		print("\033[91m" + name + ": FAILED")
+		print("\033[91m" + "\tExpected:", expected)
 		print("\033[91m" + "\tResult:", result, "\033[0m")
 		return False
 
@@ -106,7 +106,7 @@ def rule_match():
 	rule_match_less()
 	rule_match_and()
 	rule_match_or()
-	rule_match_contain
+	rule_match_contain()
 	rule_match_xor()
 	rule_match_not()
 
@@ -224,7 +224,13 @@ def thing_eq():
 	attrs = {"Name": "Hello", "Value": 3}
 	thing1 = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
 	thing2 = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+	thing3 = Thing("SuperThing", attributes=attrs, definition="TestyDef")
+	thing4 = Thing("TestyThing", definition="TestyDef")
+	thing5 = Thing("TestyThing", attributes=attrs)
 	test("Thing Equality", thing1 == thing2, True)
+	test("Thing Inequality 1", thing1 == thing3, False)
+	test("Thing Inequality 2", thing1 == thing4, False)
+	test("Thing Inequality 3", thing1 == thing5, False)
 
 # tests Webster.__init__()
 def init_webster():
@@ -309,7 +315,7 @@ def webster_get_definition():
 	test_result = webster.get_definition("TestyDef")
 	test("Webster Get Definition", test_result, definition)
 
-# test Webster.get_thing(identifier)
+# tests Webster.get_thing(identifier)
 def webster_get_thing():
 
 	# define a thing
@@ -321,6 +327,7 @@ def webster_get_thing():
 	# run test
 	test("Webster Get Thing", webster.get_thing("TestyThingy"), thing)
 
+# tests Webster.add_definition()
 def webster_add_definition():
 
 	# define rules to use
@@ -341,6 +348,7 @@ def webster_add_definition():
 	result = webster.get_definition("TestyDef")
 	test("Webster Add Definition", result, definition)
 
+# tests Webster.add_thing()
 def webster_add_thing():
 
 	# define a thing
@@ -351,6 +359,54 @@ def webster_add_thing():
 	webster = Webster()
 	webster.add_thing("TestyThingy", attributes=attrs)
 	test("Webster Add Thing", webster.get_thing("TestyThingy"), thing)
+
+# tests Webster.get_property()
+def webster_get_prop():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result = webster.get_property("TestyDef", "Name")
+	test("Webster Get Property", result, name_prop)
+
+# tests Webster.get_rule()
+def webster_get_rule():
+	
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result = webster.get_rule("TestyDef", "Name")
+	test("Webster Get Rule", result, xor_rule)
+
+# tests Webster.get_attribute()
+def webster_get_attr():
+	attrs = {"Name": "Hello", "Value": 3}
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	result = webster.get_attribute("TestyThingy", "Name")
+	test("Webster Get Attribute", result, "Hello")
 
 # -----------------------------------------------------------------------------
 # -------------------------- CLASS TESTS --------------------------------------
@@ -391,6 +447,9 @@ def webster_tests():
 	webster_get_thing()
 	webster_add_definition()
 	webster_add_thing()
+	webster_get_prop()
+	webster_get_rule()
+	webster_get_attr()
 
 # -----------------------------------------------------------------------------
 # -------------------------- RUN ALL TESTS ------------------------------------

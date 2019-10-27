@@ -224,11 +224,13 @@ class Webster:
 		Returns the new definition
 		"""
 
-		self.dictionary[name] = Definition(name, props)
+		new_def = Definition(name, props)
+		self.dictionary[name] = new_def
+		return new_def
 	
 	def add_thing(self, identifier, attributes=None, definition=None) -> Thing:
 		"""
-		Adds a dthing to the brain
+		Adds a thing to the brain
 		Returns the new thing
 		"""
 
@@ -236,3 +238,31 @@ class Webster:
 							attributes=attributes,
 							definition=definition)
 		self.brain[identifier] = new_thing
+		return new_thing
+	
+	def get_property(self, definition, property) -> Property:
+		"""
+		Returns a Property
+		definition: The name of the definition to pull from
+		property: The name of the property to return
+		"""
+
+		return self.dictionary[definition].props[property]
+	
+	def get_rule(self, definition, property) -> Rule:
+		"""
+		Returns the rule associated with the specified property
+		definition: The name of the definition to pull from
+		property: The name of the property to pull from
+		"""
+
+		return self.dictionary[definition].props[property].rule
+
+	def get_attribute(self, identifier, attribute):
+		"""
+		Returns the value of a Thing
+		identifier: the ID of the Thing
+		attribute: The name of the attribute
+		"""
+
+		return self.brain[identifier].attrs[attribute]
