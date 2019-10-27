@@ -2,7 +2,7 @@
 Tests for Webster 1.0
 """
 
-from webster_py import RuleType, Rule, Property, Definition
+from webster_py import *
 
 def test(name, result, expected):
 	"""
@@ -121,13 +121,26 @@ def init_definition():
 	valu_prop = Property("Value", and_rule)
 
 	# define a definition for testing
-	definition = Definition("TestyThingy", [name_prop, valu_prop])
+	definition = Definition("TestyDef", [name_prop, valu_prop])
 
 	# the expected value of definition.prop
 	exp_prop = {"Name": name_prop, "Value": valu_prop}
 
-	test("Definition Construction Name", definition.name, "TestyThingy")
+	test("Definition Construction Name", definition.name, "TestyDef")
 	test("Definition Construction Properties", definition.props, exp_prop)
+
+# tests Thing.__init()
+def init_thing():
+
+	# test thing.name
+	thing = Thing("TestyThingy")
+	test("Thing Construction ID", thing.identifier, "TestyThingy")
+
+	# test thing.attrs and thing.definition
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+	test("Thing Construction Properties", thing.attrs, attrs)
+	test("Thing Construction Definition", thing.definition, "TestyDef")
 
 # tests RuleType enumerator
 def rule_type_enum():
@@ -147,11 +160,16 @@ def prop_tests():
 def def_tests():
 	init_definition()
 
+# runs all tests for the Thing class
+def thing_tests():
+	init_thing()
+
 def run_all_tests():
 	rule_type_enum()
 	rule_tests()
 	prop_tests()
 	def_tests()
+	thing_tests()
 
 if __name__ == "__main__":
 	run_all_tests()

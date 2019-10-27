@@ -91,7 +91,7 @@ class Property:
 
 class Definition:
 	"""
-	Essentially a name linked to a set of properties
+	Essentially a name linked to a dictionary of properties
 	All properties must match a given thing for it to match the definition
 	"""
 
@@ -109,11 +109,35 @@ class Definition:
 		"""
 		Returns true if the definition is a match, false otherwise
 		A thing must match all properties to match the definition
+		It also satisfies the definition is it's already defined as doing so
 		"""
+		if thing.definition == self.name:
+			return True
 		for prop in self.props:
-			if prop.name in thing.props:
-				if not prop.match(thing.props[prop.name]):
+			if prop.name in thing.attrs:
+				if not prop.match(thing.attrs[prop.name]):
 					return False
 			else:
 				return False
 		return True
+
+class Thing:
+	"""
+	An object which is known to exist
+	Has an id and a dictionary of attributes
+	"""
+
+	def __init__(self, identifier, attributes = None, definition = None):
+		"""
+		identifier: An ID for the thing
+		props: a list of properties for the Thing
+		definition: the name of the definition for the thing
+		"""
+		self.identifier = identifier
+		self.definition = None
+		if definition != None:
+			self.definition = definition
+		if attributes == None:
+			self.attrs = {}
+		else:
+			self.attrs = attributes
