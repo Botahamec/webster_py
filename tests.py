@@ -2,7 +2,7 @@
 Tests for Webster 0.2
 """
 
-from webster_py import *
+from webster_py import RuleType, Rule, Property, Definition, Thing, Webster
 
 def test(name, result, expected):
 	"""
@@ -12,12 +12,12 @@ def test(name, result, expected):
 	"""
 
 	if result == expected:
-		print(name + ": PASSED")
+		print("\033[32m" + name + ": PASSED" + "\033[0m")
 		return True
 	else:
-		print(name + ": FAILED")
-		print("\tExpected:", expected)
-		print("\tResult:", result)
+		print("\033[91m" + name + ": FAILED" + "\033[0m")
+		print("\033[91m" + "\tExpected:", expected, "\033[0m")
+		print("\033[91m" + "\tResult:", result, "\033[0m")
 		return False
 
 # -----------------------------------------------------------------------------
@@ -93,7 +93,11 @@ def init_rule():
 def rule_eq():
 	rule1 = Rule(RuleType.GREATER, 5)
 	rule2 = Rule(RuleType.GREATER, 5)
+	rule3 = Rule(RuleType.GREATER, 3)
+	rule4 = Rule(RuleType.LESS, 5)
 	test("Rule Equality", rule1 == rule2, True)
+	test("Rule Inequality 1", rule1 == rule3, False)
+	test("Rule Inequality 2", rule1 == rule4, False)
 
 # tests Rule.match(value)
 def rule_match():
@@ -118,7 +122,11 @@ def property_eq():
 	rule = Rule(RuleType.GREATER, 5)
 	prop1 = Property("count", rule)
 	prop2 = Property("count", rule)
+	prop3 = Property("name", rule)
+	prop4 = Property("count", Rule(RuleType.LESS, 10))
 	test("Property Equality", prop1 == prop2, True)
+	test("Property Inequality 1", prop1 == prop3, False)
+	test("Property Inequality 2", prop1 == prop4, False)
 
 # tests Property.match(value)
 def property_match():
@@ -167,7 +175,11 @@ def definition_eq():
 	# run the test
 	def1 = Definition("TestyDef", [name_prop, valu_prop])
 	def2 = Definition("TestyDef", [name_prop, valu_prop])
+	def3 = Definition("TestDef", [name_prop, valu_prop])
+	def4 = Definition("TestyDef", [name_prop])
 	test("Definition Equality", def1 == def2, True)
+	test("Definition Inequality 1", def1 == def3, False)
+	test("Definition Inequality 2", def1 == def4, False)
 
 # tests Definition.match(Thing)
 def definition_match():
@@ -267,7 +279,11 @@ def webster_eq():
 	# defines Webster
 	webster1 = Webster(brain=[thing], dictionary=[definition])
 	webster2 = Webster(brain=[thing], dictionary=[definition])
+	webster3 = Webster(dictionary=[definition])
+	webster4 = Webster(brain=[thing])
 	test("Webster Equality", webster1 == webster2, True)
+	test("Webster Inequality 1", webster1 == webster3, False)
+	test("Webster Inequality 2", webster1 == webster4, False)
 
 # tests Webster.get_definition(name)
 def webster_get_definition():
