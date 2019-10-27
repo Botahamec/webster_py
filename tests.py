@@ -491,6 +491,43 @@ def webster_has_attr():
 	test("Webster Has Attribute 1", result1, True)
 	test("Webster Has Attribute 2", result2, False)
 
+# tests Webster.has_definition()
+def webster_has_def():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# define a thing
+	attrs1 = {"Name": "Hello", "Value": 5}
+	attrs2 = {"Name": "hello", "Value": 1}
+	thing1 = Thing("Thing 1", attributes=attrs1, definition="TestyDef")
+	thing2 = Thing("Thing 2", attributes=attrs2)
+	thing3 = Thing("Thing Red", attributes=attrs2, definition="TestyDef")
+	thing4 = Thing("Thing Blue", attributes=attrs1)
+	brain = [thing1, thing2, thing3, thing4]
+
+	# runs test
+	webster = Webster(brain=brain, dictionary=[definition])
+	result1 = webster.has_definition("Thing 1", "TestyDef")
+	result2 = webster.has_definition("Thing 2", "TestyDef")
+	result3 = webster.has_definition("Thing Red", "TestyDef")
+	result4 = webster.has_definition("Thing Blue", "TestyDef")
+	test("Webster Has Definition 1", result1, True)
+	test("Webster Has Definition 2", result2, False)
+	test("Webster Has Definition 3", result3, True)
+	test("Webster Has Definition 4", result4, True)
+
 # -----------------------------------------------------------------------------
 # -------------------------- CLASS TESTS --------------------------------------
 # -----------------------------------------------------------------------------
@@ -538,6 +575,7 @@ def webster_tests():
 	webster_set_attr()
 	webster_has_prop()
 	webster_has_attr()
+	webster_has_def()
 
 # -----------------------------------------------------------------------------
 # -------------------------- RUN ALL TESTS ------------------------------------

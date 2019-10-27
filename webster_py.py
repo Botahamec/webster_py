@@ -126,8 +126,8 @@ class Definition:
 		It also satisfies the definition is it's already defined as doing so
 		"""
 
-		if thing.definition == self.name:
-			return True
+		if thing.definition != None:
+			return thing.definition == self.name
 		for prop in self.props:
 			if prop in thing.attrs:
 				if not self.props[prop].match(thing.attrs[prop]):
@@ -312,3 +312,12 @@ class Webster:
 		"""
 
 		return attribute in self.brain[thing].attrs
+	
+	def has_definition(self, thing, definition) -> bool:
+		"""
+		Returns true if the thing matches the given definition
+		thing: The ID for the Thing
+		definition: The name of the definition
+		"""
+
+		return self.dictionary[definition].match(self.brain[thing])
