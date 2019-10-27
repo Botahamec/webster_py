@@ -240,7 +240,7 @@ class Webster:
 		self.brain[identifier] = new_thing
 		return new_thing
 	
-	def get_property(self, definition, property) -> Property:
+	def get_property(self, definition: str, property: str) -> Property:
 		"""
 		Returns a Property
 		definition: The name of the definition to pull from
@@ -249,7 +249,7 @@ class Webster:
 
 		return self.dictionary[definition].props[property]
 	
-	def get_rule(self, definition, property) -> Rule:
+	def get_rule(self, definition: str, property: str) -> Rule:
 		"""
 		Returns the rule associated with the specified property
 		definition: The name of the definition to pull from
@@ -258,7 +258,7 @@ class Webster:
 
 		return self.dictionary[definition].props[property].rule
 
-	def get_attribute(self, identifier, attribute):
+	def get_attribute(self, identifier, attribute: str):
 		"""
 		Returns the value of a Thing
 		identifier: the ID of the Thing
@@ -266,3 +266,38 @@ class Webster:
 		"""
 
 		return self.brain[identifier].attrs[attribute]
+	
+	def set_property_rule(self, definition: str, property: str, rule: Rule):
+		"""
+		Sets a rule for a given property
+		definition: The name of the definition
+		property: The name of the property to be changed
+		rule: The new rule
+		Returns the rule given
+		"""
+
+		self.dictionary[definition].props[property].rule = rule
+		return rule
+	
+	def add_property(self, definition: str, name: str, rule: Rule) -> Property:
+		"""
+		Creates a new property and adds it to the given definition
+		definition: The name of the definition
+		name: The name of the property
+		rule: The rule for the property
+		"""
+
+		new_prop = Property(name, rule)
+		self.dictionary[definition].props[name] = new_prop
+		return new_prop
+	
+	def set_attribute(self, thing, name: str, value: any) -> str:
+		"""
+		Sets the value of an attribute for a Thing
+		thing: The ID of the Thing to modify
+		name: The name of the attribute
+		value: The value of the attribute
+		"""
+
+		self.brain[thing].attrs[name] = value
+		return name

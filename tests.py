@@ -408,6 +408,57 @@ def webster_get_attr():
 	result = webster.get_attribute("TestyThingy", "Name")
 	test("Webster Get Attribute", result, "Hello")
 
+# tests Webster.set_property_rule()
+def webster_set_rule():
+	
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+	new_rule = Rule(RuleType.IS, "Hello")
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	webster.set_property_rule("TestyDef", "Name", new_rule)
+	test("Webster Set Rule", webster.get_rule("TestyDef", "Name"), new_rule)
+
+# tests Webster.add_property()
+def webster_add_prop():
+	
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop])
+	webster.add_property("TestyDef", "Value", and_rule)
+	result = webster.get_property("TestyDef", "Value")
+	test("Webster Add Property", result, valu_prop)
+
+# tests Webster.set_attribute()
+def webster_set_attr():
+	attrs = {"Name": "Hello"}
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	webster.set_attribute("TestyThingy", "Value", 3)
+	result = webster.get_attribute("TestyThingy", "Value")
+	test("Webster Set Attribute", result, 3)
+
 # -----------------------------------------------------------------------------
 # -------------------------- CLASS TESTS --------------------------------------
 # -----------------------------------------------------------------------------
@@ -450,6 +501,9 @@ def webster_tests():
 	webster_get_prop()
 	webster_get_rule()
 	webster_get_attr()
+	webster_set_rule()
+	webster_add_prop()
+	webster_set_attr()
 
 # -----------------------------------------------------------------------------
 # -------------------------- RUN ALL TESTS ------------------------------------
