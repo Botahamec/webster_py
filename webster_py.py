@@ -1,5 +1,21 @@
 """
 Webster is a framework which I hope to use for AI in the future
+This is Webster 0.2, which add Rules and Properties
+This update also distinguishes Things (Objects) from Definitions
+This is almost a complete rewrite of version 0.1
+-------------------------------------------------------------------------------
+There are still some issues regarding determining a Thing's attributes
+The problem is that there is now ambiguity regarding what the value could be
+Also, the Rules aren't Turing complete yet
+A way to fix at least one of the issues is to add probability to the mix
+Each rule could specify a probability of the thing matching the definition
+And each attribute could include a probability of being true
+I'd like to add a Value type, and modifiers for them to use in Rules
+It would also have to be possible to create new values
+This is much more complicated than what we have now already
+-------------------------------------------------------------------------------
+So for 0.3, I want to add Values, Modifiers, Attributes
+If you have any other suggestions, make an issue or email botahamec@outlook.com
 """
 
 from enum import Enum
