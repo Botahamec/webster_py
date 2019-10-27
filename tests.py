@@ -129,6 +129,31 @@ def init_definition():
 	test("Definition Construction Name", definition.name, "TestyDef")
 	test("Definition Construction Properties", definition.props, exp_prop)
 
+# tests Definition.match(Thing)
+def definition_match():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# define a thing for testing
+	thing = Thing("TestyThingy", attributes={"Name": "Hello", "Value": 4})
+	test("Definition Match 1", definition.match(thing), True)
+	thing = Thing("TestyThingy", attributes={"Name": "hello", "Value": 4})
+	test("Definition Match 2", definition.match(thing), False)
+	thing = Thing("TestyThingy", attributes={"Name": "Hello", "Value": 3})
+	test("Definition Match 3", definition.match(thing), False)
+
 # tests Thing.__init()
 def init_thing():
 
@@ -159,6 +184,7 @@ def prop_tests():
 # runs all tests for the Definition class
 def def_tests():
 	init_definition()
+	definition_match()
 
 # runs all tests for the Thing class
 def thing_tests():

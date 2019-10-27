@@ -114,8 +114,8 @@ class Definition:
 		if thing.definition == self.name:
 			return True
 		for prop in self.props:
-			if prop.name in thing.attrs:
-				if not prop.match(thing.attrs[prop.name]):
+			if prop in thing.attrs:
+				if not self.props[prop].match(thing.attrs[prop]):
 					return False
 			else:
 				return False
