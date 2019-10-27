@@ -89,6 +89,12 @@ def init_rule():
 	test("Rule Construction Type", rule.rule_type, RuleType.GREATER)
 	test("Rule Construction Value", rule.value, 5)
 
+# tests Rule.__eq__()
+def rule_eq():
+	rule1 = Rule(RuleType.GREATER, 5)
+	rule2 = Rule(RuleType.GREATER, 5)
+	test("Rule Equality", rule1 == rule2, True)
+
 # tests Rule.match(value)
 def rule_match():
 	rule_match_is()
@@ -100,12 +106,19 @@ def rule_match():
 	rule_match_xor()
 	rule_match_not()
 
-# tests Property.__init()
+# tests Property.__init__()
 def init_property():
 	rule = Rule(RuleType.GREATER, 5)
 	prop = Property("count", rule)
 	test("Property Construction Name", prop.name, "count")
 	test("Property Construction Rule", prop.rule, rule)
+
+# tests Property.__eq__()
+def property_eq():
+	rule = Rule(RuleType.GREATER, 5)
+	prop1 = Property("count", rule)
+	prop2 = Property("count", rule)
+	test("Property Equality", prop1 == prop2, True)
 
 # tests Property.match(value)
 def property_match():
@@ -136,6 +149,25 @@ def init_definition():
 
 	test("Definition Construction Name", definition.name, "TestyDef")
 	test("Definition Construction Properties", definition.props, exp_prop)
+
+# tests Definition.__eq__()
+def definition_eq():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run the test
+	def1 = Definition("TestyDef", [name_prop, valu_prop])
+	def2 = Definition("TestyDef", [name_prop, valu_prop])
+	test("Definition Equality", def1 == def2, True)
 
 # tests Definition.match(Thing)
 def definition_match():
@@ -175,6 +207,13 @@ def init_thing():
 	test("Thing Construction Properties", thing.attrs, attrs)
 	test("Thing Construction Definition", thing.definition, "TestyDef")
 
+# tests Thing.__eq__()
+def thing_eq():
+	attrs = {"Name": "Hello", "Value": 3}
+	thing1 = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+	thing2 = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+	test("Thing Equality", thing1 == thing2, True)
+
 # tests Webster.__init__()
 def init_webster():
 
@@ -203,6 +242,32 @@ def init_webster():
 	dict_test = webster.dictionary["TestyDef"]
 	test("Webster Construction Dictionary", dict_test, definition)
 	test("Webster Construction Brain", webster.brain["TestyThingy"], thing)
+
+# tests Webster.__eq__()
+def webster_eq():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+
+	# defines Webster
+	webster1 = Webster(brain=[thing], dictionary=[definition])
+	webster2 = Webster(brain=[thing], dictionary=[definition])
+	test("Webster Equality", webster1 == webster2, True)
 
 # tests Webster.get_definition(name)
 def webster_get_definition():
@@ -271,25 +336,30 @@ def rule_type_enum():
 # runs all tests for the Rule Class
 def rule_tests():
 	init_rule()
+	rule_eq()
 	rule_match()
 
 # runs all tests for the Property class
 def prop_tests():
 	init_property()
+	property_eq()
 	property_match()
 
 # runs all tests for the Definition class
 def def_tests():
 	init_definition()
+	definition_eq()
 	definition_match()
 
 # runs all tests for the Thing class
 def thing_tests():
 	init_thing()
+	thing_eq()
 
 # runs all tests for the Webster class
 def webster_tests():
 	init_webster()
+	webster_eq()
 	webster_get_definition()
 	webster_get_thing()
 	webster_add_definition()
