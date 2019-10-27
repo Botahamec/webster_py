@@ -341,6 +341,17 @@ def webster_add_definition():
 	result = webster.get_definition("TestyDef")
 	test("Webster Add Definition", result, definition)
 
+def webster_add_thing():
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs)
+
+	# run the test
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	test("Webster Add Thing", webster.get_thing("TestyThingy"), thing)
+
 # -----------------------------------------------------------------------------
 # -------------------------- CLASS TESTS --------------------------------------
 # -----------------------------------------------------------------------------
@@ -379,6 +390,7 @@ def webster_tests():
 	webster_get_definition()
 	webster_get_thing()
 	webster_add_definition()
+	webster_add_thing()
 
 # -----------------------------------------------------------------------------
 # -------------------------- RUN ALL TESTS ------------------------------------
