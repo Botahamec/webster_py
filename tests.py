@@ -240,6 +240,26 @@ def webster_get_thing():
 	# run test
 	test("Webster Get Thing", webster.get_thing("TestyThingy"), thing)
 
+def webster_add_definition():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# runs test
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result = webster.get_definition("TestyDef")
+	test("Webster Add Definition", result, definition)
+
 # -----------------------------------------------------------------------------
 # -------------------------- CLASS TESTS --------------------------------------
 # -----------------------------------------------------------------------------
