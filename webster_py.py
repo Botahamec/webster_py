@@ -1,221 +1,339 @@
 """
-Webster is a framework which will in the future be used for AI
-Currently is not very useful other than being used to store known information
-The definitions are currently the same as the actual objects, which isn't good
-However, I will call this 0.1, but it does most of what I expect 1.0 to do
-The problem is that the rest of what I want it to do in unpractical
-It's supposed to used an advanced version of dynamic typing
-Changing definitions should be able to change the value of objects in memory
-But this doesn't make much sense to implement
-Imagine I learned that emeralds are green but I thought rubies were emeralds
-I wouldn't then conclude that rubies are green
-I'd just say that rubies aren't emeralds
-Anyway, here's a list of features I'll add in the future to make it better
+Webster is a framework which I hope to use for AI in the future
+This is Webster 0.2, which add Rules and Properties
+This update also distinguishes Things (Objects) from Definitions
+This is almost a complete rewrite of version 0.1
 -------------------------------------------------------------------------------
-Definitions and Objects need to be separate classes
-There needs to be a special DictionaryProperty class
-The DictionaryProperty class will be much more robust
-It will contain a binary operator, which an object will need to fulfill
-Dictionaries should also have a list of digital "makefiles"
-The makefiles should help the objects figure out their own properties
-Definitions also should have a list of adjectives
-Adjectives are boolean functions which are based on the object's properties
-This requires a digital "programming language"
-That's a completely different project though so I won't implement that soon
-I'd also like somehow a list of the definition's abilities
-These are abilities that an object of the definition can theoretically perform
-This however is currently not a reasonable expectation
+There are still some issues regarding determining a Thing's attributes
+The problem is that there is now ambiguity regarding what the value could be
+Also, the Rules aren't Turing complete yet
+A way to fix at least one of the issues is to add probability to the mix
+Each rule could specify a probability of the thing matching the definition
+And each attribute could include a probability of being true
+I'd like to add a Value type, and modifiers for them to use in Rules
+It would also have to be possible to create new values
+This is much more complicated than what we have now already
 -------------------------------------------------------------------------------
-If you have questions, suggestions, or ways to improve contact me:
-My email is botahamec@outlook.com
+So for 0.3, I want to add Values, Modifiers, Attributes
+If you have any other suggestions, make an issue or email botahamec@outlook.com
 """
 
-# a definition or an object
-class Object:
+from enum import Enum
+
+class RuleType(Enum):
+	IS      = 0
+	GREATER = 1
+	LESS    = 2
+	AND     = 3
+	OR      = 4
+	XOR     = 5
+	NOT     = 6
+	CONTAIN = 7
+
+class Rule:
 	"""
-	An object can be either a definition or actual object in Webster's memory.
-	An object contains properties and possible applying adjectives.
+	Contains a RuleType and a value
+
+	RuleType | Value Type | Description
+	------------------------------------
+	IS       | any        | The value in the thing == the value in the rule
+	GREATER  | number     | The value in the thing > the value in the rule
+	LESS     | number     | The value in the thing < than the value in the rule
+	AND      | rule list  | All rules specified are true
+	OR       | rule list  | Any of the rules specified are true
+	XOR      | rule list  | One of the rules specified are true
+	NOT      | rule       | The specified rule is false
+	CONTAIN  | any        | A list contains the specified value
 	"""
 
-	def __init__(self, name, properties):
+	def __init__(self, rule_type: RuleType, value: any):
 		"""
-		This is the constructor for the object type.
-		The name is how the object will be identified.
-		The properties is a dictionary of nproperties.
+		Example usage: Rule(RuleType.IS, "Hello!")
 		"""
 
-		self.name = name # the name of the definition, or the id of the object
-		self.properties = properties # a dictionary containing the properties
+		self.rule_type = rule_type
+		self.value = value
+	
 
-# the webster bot
+	def __eq__(self, other):
+		if not isinstance(other, Rule):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.rule_type == other.rule_type and self.value == other.value
+
+	def match(self, value: any) -> bool:
+		"""
+		Checks to see if the given value obeys the rule
+		Returns true if it does, false otherwise
+		"""
+
+		if self.rule_type == RuleType.IS: return value == self.value
+		elif self.rule_type == RuleType.GREATER: return value > self.value
+		elif self.rule_type == RuleType.LESS: return value < self.value
+		elif self.rule_type == RuleType.AND:
+			for rule in self.value:
+				if not rule.match(value): return False
+			return True
+		elif self.rule_type == RuleType.OR:
+			for rule in self.value:
+				if rule.match(value): return True
+			return False
+		elif self.rule_type == RuleType.XOR:
+			checks = 0
+			for rule in self.value:
+				if rule.match(value): checks += 1
+				if checks > 1: return False
+			if checks == 1: return True                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+			return False
+		elif self.rule_type == RuleType.NOT: return not self.value.match(value)
+		elif self.rule_type == RuleType.CONTAIN: return self.value in value
+		raise "No valid RuleType found for this Rule"
+
+class Property:
+	"""
+	Attaches a name to a rule, which may contain other rules
+	"""
+
+	def __init__(self, name: str, rule: Rule):
+		self.name = name
+		self.rule = rule
+	
+	def __eq__(self, other):
+		if not isinstance(other, Property):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.name == other.name and self.rule == other.rule
+	
+	def match(self, value: any) -> bool:
+		"""
+		Returns true if the value satisfies the property
+		Returns false otherwise
+		"""
+
+		return self.rule.match(value)
+
+class Definition:
+	"""
+	Essentially a name linked to a dictionary of properties
+	All properties must match a given thing for it to match the definition
+	"""
+
+	def __init__(self, name: str, props):
+		"""
+		name: the name of the definition
+		props: a list of properties, which will be converted to a dictionary
+		"""
+
+		self.name = name
+		self.props = {}
+		for prop in props:
+			self.props[prop.name] = prop
+	
+	def __eq__(self, other):
+		if not isinstance(other, Definition):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.name == other.name and self.props == other.props
+
+	def match(self, thing) -> bool:
+		"""
+		Returns true if the definition is a match, false otherwise
+		A thing must match all properties to match the definition
+		It also satisfies the definition is it's already defined as doing so
+		"""
+
+		if thing.definition != None:
+			return thing.definition == self.name
+		for prop in self.props:
+			if prop in thing.attrs:
+				if not self.props[prop].match(thing.attrs[prop]):
+					return False
+			else:
+				return False
+		return True
+
+class Thing:
+	"""
+	An object which is known to exist
+	Has an id and a dictionary of attributes
+	"""
+
+	def __init__(self, identifier, attributes = None, definition = None):
+		"""
+		identifier: An ID for the thing
+		props: a list of properties for the Thing
+		definition: the name of the definition for the thing
+		"""
+
+		self.identifier = identifier
+		self.definition = None
+		if definition != None:
+			self.definition = definition
+		if attributes == None:
+			self.attrs = {}
+		else:
+			self.attrs = attributes
+	
+	def __eq__(self, other):
+		if not isinstance(other, Thing):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		ident_eq = self.identifier == other.identifier
+		attrs_eq = self.attrs == other.attrs
+		defin_eq = self.definition == other.definition
+		return ident_eq and attrs_eq and defin_eq
+
 class Webster:
 	"""
-	This object contains the actual Webster bot.
-	A Webster object has two properties: the dictionary and the memory.
-	The dictionary contains all of the possible types of objects which exist.
-	The memory lists all of the objects which Webster knows exist.
+	A container for all the information
+	Contains a hashmap for its brain and dictionary
+	The brain contains things while the dictionary contains definitions
 	"""
 
-	def __init__(self):
+	def __init__(self, brain = None, dictionary = None):
 		"""
-		This is the constuctor for the Webster object.
-		It doesn't take any particular properties.
-		It creates the dictionary and memory arrays
+		Brain and dictionary are both lists
+		They contain things and definitions, respectively
 		"""
 
-		self.memory = [] # an array of all the objects which exist
-		self.dictionary = [] # an array of all the objects which could exist
+		self.brain = {}
+		if brain != None:
+			for thing in brain:
+				self.brain[thing.identifier] = thing
+		self.dictionary = {}
+		if dictionary != None:
+			for definition in dictionary:
+				self.dictionary[definition.name] = definition
 	
-	def add_definition(self, name, properties):
-		"""
-		This function creates a new definition.
-		name: The name of the definition
-		properties: The dictionary of properties to be added to the definition
-		"""
-		self.dictionary.append(Object(name, properties)) # Object constructor
+	def __eq__(self, other):
+		if not isinstance(other, Webster):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		brain = self.brain
+		dictionary = self.dictionary
+		return brain == other.brain and dictionary == other.dictionary
 	
-	def get_definition(self, name):
+	def get_definition(self, name: str) -> Definition:
 		"""
-		looks through the dictionary to find a definition with the name
+		Gets a definition from the dictionary from its name
 		"""
 
-		for definition in self.dictionary: # checks each definition in the dict
-			if definition.name == name: return definition # returns definition
-		raise Exception("no object of the given name found") # if none found
+		return self.dictionary[name]
 	
-	def add_object(self, id, definition):
+	def get_thing(self, identifier: str) -> Thing:
 		"""
-		This function adds a new object to the memory.
-		This requires that a definition of the object already exists.
-		The object is given the properties of the definition referenced.
+		Gets a definition from the brain based on its identifier
 		"""
 
-		properties = self.get_definition(definition).properties # properties
-		self.memory.append(Object(id, properties)) # calls object constructor
+		return self.brain[identifier]
 	
-	def get_object(self, id):
+	def add_definition(self, name: str, props) -> Definition:
 		"""
-		This function gets an object from memory with the specified id
-		"""
-
-		for object in self.memory: # checks the id of each object
-			if object.name == id: return object # returns one with correct id
-		raise Exception("no object of the given id found") # if none found
-
-	def _get_object_index(self, id):
-		"""
-		This function returns index of an object with given id in the memory
-		Not meant to be used by users, only by the Webster object
+		Adds a definition to the dictionary
+		Returns the new definition
 		"""
 
-		for index in range(0, len(self.memory)): # checks id of each object
-			if self.memory[index].name == id: return index # returns index
-		raise Exception("no object of the given id found") # if none found
-
-	def _get_definition_index(self, name):
-		"""
-		This function returns index of a dictionay with the given name
-		This function should only be used by the Webster object
-		"""
-
-		for index in range(0, len(self.dictionary)): # checks each definition
-			if self.dictionary[index].name == name: return index # reurns index
-		raise Exception("no object of the given id found") # if none found
-
-	def get_object_property(self, object_id, property):
-		"""
-		This function returns the value of a property in a given object.
-		"""
-
-		object = self.get_object(object_id) # the object with the given name
-		for name, value in object.properties.items(): # checks all properties
-			if name == property: return value # returns the value
-		raise Exception("No property of the given name found") # if none found
-
-	def get_definition_property(self, definition_name, property):
-		"""
-		This function returns the value of a property in a given definition
-		"""
-
-		definition = self.get_definition(definition_name) # the definition
-		for name, value in definition.properties.items(): # checks properties
-			if name == property: return value # returns the value
-		raise Exception("No property of the given name found") # if none found
-
-	def definition_of_type(self, new_name, og_def):
-		"""
-		This function creates a new definition with the properties of another
-		This is useful for inheritance
-		"""
-		properties = self.get_definition(og_def).properties  # new properties
-		self.add_definition(new_name, properties)  # creates new definition
-
-	def _get_definition_property_index(self, def_index, property):
-		"""
-		This function returns the index of a specific property of a definition
-		This is meant to be used only for the webster object
-		"""
-
-		for index in range(0, len(self.dictionary[def_index].properties)):
-			if list(self.dictionary[def_index].properties.keys())[index] == property:
-				return index  # return the index of property with matching name
-		raise Exception("No property of given name found")  # if none found
-
-	def _get_object_property_index(self, object_index, property):
-		"""
-		This function returns the index of a specific property of an object
-		This is meant to be used only for the webster object
-		"""
-
-		for index in range(0, len(self.memory[object_index].properties)):
-			if list(self.memory[object_index].properties.keys())[index] == property:
-				return index # return the index of property with matching name
-		raise Exception("No property of given name found") # if none found
-
-	def set_object_property(self, object, name, val):
-		"""
-		This function sets the value of a property for an object in memory
-		If the property doesn't exist, then it is added
-		"""
-
-		self.memory[self._get_object_index(object)].properties[name] = val
-
-	def set_definition_property(self, defn, name, val):
-		"""
-		This function the value of a property for a definition
-		If the property doesn't exist it'll be added
-		"""
-
-		self.dictionary[self._get_definition_index(defn)].properties[name]=val
-
-	def object_has_property(self, object, property):
-		"""
-		Returns true if the object has the property specified
-		"""
-
-		for key in self.get_object(object).properties.keys():
-			if property == key: return True
-		return False
+		new_def = Definition(name, props)
+		self.dictionary[name] = new_def
+		return new_def
 	
-	def definition_has_property(self, definition, property):
+	def add_thing(self, identifier, attributes=None, definition=None) -> Thing:
 		"""
-		Returns true if the definition has the property specified
-		"""
-
-		for key in self.get_definition(definition).properties.keys():
-			if property == key: return True
-		return False
-
-	def object_has_definition(self, object, definition):
-		"""
-		Compares an object's properties with a definition's properties
-		Returns true if the two are similar
+		Adds a thing to the brain
+		Returns the new thing
 		"""
 
-		for name, value in definition.properties.items():
-			if self.object_has_property(object, property):
-				if value == None: continue
-				elif self.get_object_property(object, name) == value: continue
-				else: return False
-			else: return False
-		return True
+		new_thing = Thing(identifier,
+							attributes=attributes,
+							definition=definition)
+		self.brain[identifier] = new_thing
+		return new_thing
+	
+	def get_property(self, definition: str, property: str) -> Property:
+		"""
+		Returns a Property
+		definition: The name of the definition to pull from
+		property: The name of the property to return
+		"""
+
+		return self.dictionary[definition].props[property]
+	
+	def get_rule(self, definition: str, property: str) -> Rule:
+		"""
+		Returns the rule associated with the specified property
+		definition: The name of the definition to pull from
+		property: The name of the property to pull from
+		"""
+
+		return self.dictionary[definition].props[property].rule
+
+	def get_attribute(self, identifier, attribute: str):
+		"""
+		Returns the value of a Thing
+		identifier: the ID of the Thing
+		attribute: The name of the attribute
+		"""
+
+		return self.brain[identifier].attrs[attribute]
+	
+	def set_property_rule(self, definition: str, property: str, rule: Rule):
+		"""
+		Sets a rule for a given property
+		definition: The name of the definition
+		property: The name of the property to be changed
+		rule: The new rule
+		Returns the rule given
+		"""
+
+		self.dictionary[definition].props[property].rule = rule
+		return rule
+	
+	def add_property(self, definition: str, name: str, rule: Rule) -> Property:
+		"""
+		Creates a new property and adds it to the given definition
+		definition: The name of the definition
+		name: The name of the property
+		rule: The rule for the property
+		"""
+
+		new_prop = Property(name, rule)
+		self.dictionary[definition].props[name] = new_prop
+		return new_prop
+	
+	def set_attribute(self, thing, name: str, value: any) -> str:
+		"""
+		Sets the value of an attribute for a Thing
+		thing: The ID of the Thing to modify
+		name: The name of the attribute
+		value: The value of the attribute
+		"""
+
+		self.brain[thing].attrs[name] = value
+		return name
+	
+	def has_property(self, definition, property: str) -> bool:
+		"""
+		Returns true if the Definition has the specified property
+		thing: The name of the Definition to look for
+		attribute: The name of the property to check for
+		"""
+
+		return property in self.dictionary[definition].props
+
+	def has_attribute(self, thing, attribute: str) -> bool:
+		"""
+		Returns true if the Thing has the specified attribute
+		thing: The ID of the Thing to check
+		attribute: The attribute to look for
+		"""
+
+		return attribute in self.brain[thing].attrs
+	
+	def has_definition(self, thing, definition) -> bool:
+		"""
+		Returns true if the thing matches the given definition
+		thing: The ID for the Thing
+		definition: The name of the definition
+		"""
+
+		return self.dictionary[definition].match(self.brain[thing])

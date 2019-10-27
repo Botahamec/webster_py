@@ -1,317 +1,593 @@
-import webster_py
+"""
+Tests for Webster 0.2
+"""
 
-# test Object.__init__()
-def object_initialization():
-	food = webster_py.Object("Food", {"Name": None,
-								      "Group": None,
-								      "Taste": None})
-	print("Type: " + food.__class__.__name__)
-	print("Name: " + food.name)
-	print("Properties Type: " + food.properties.__class__.__name__)
-	print("Properties:")
-	for key, value in food.properties.items():
-		print("    " + key + ": " + value.__class__.__name__)
+from webster_py import RuleType, Rule, Property, Definition, Thing, Webster
 
-# test Webster.__init__()
-def webster_initialization():
-	webster = webster_py.Webster()
-	print("Webster Type: " + webster.__class__.__name__)
-	print("Memory Type: " + webster.memory.__class__.__name__)
-	print("Dictionary Type: " + webster.dictionary.__class__.__name__)
-	print("Memory Length: " + str(len(webster.memory)))
-	print("Dictionary Length: " + str(len(webster.memory)))
+def test(name, result, expected):
+	"""
+	Tests if a given value is equivalent to the expected value
+	Example Usage: test("concatenation", hello", "he" + "llo")
+	Returns true if the test passed, false otherwise
+	"""
 
-# test Webster.add_definition()
-def definition_addition():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name" : None,
-									"Group": None,
-									"Taste": None})
+	if result == expected:
+		print("\033[32m" + name + ": PASSED" + "\033[0m")
+		return True
+	else:
+		print("\033[91m" + name + ": FAILED")
+		print("\033[91m" + "\tExpected:", expected)
+		print("\033[91m" + "\tResult:", result, "\033[0m")
+		return False
+
+# -----------------------------------------------------------------------------
+# -------------------------- RULE TESTS ---------------------------------------
+# -----------------------------------------------------------------------------
+
+# test Rule.match(value) when Rule.rule_type == RuleType.IS
+def rule_match_is():
+	test("Rule IS 1", Rule(RuleType.IS, "Hello").match("Hello"), True)
+	test("Rule IS 2", Rule(RuleType.IS, "Hello").match("World"), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.GREATER
+def rule_match_greater():
+	greater_rule = Rule(RuleType.GREATER, 3) # greater than 3
+	test("Rule GREATER 1", greater_rule.match(5), True)
+	test("Rule GREATER 2", Rule(RuleType.GREATER, 3).match(1), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.LESS
+def rule_match_less():
+	less_rule = Rule(RuleType.LESS, 10) # less than 10
+	test("Rule LESS 1", less_rule.match(1), True)
+	test("Rule LESS 2", less_rule.match(12), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.AND
+def rule_match_and():
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule]) # between 3 & 10
+	test("Rule AND 1", and_rule.match(7), True)
+	test("Rule AND 2", and_rule.match(0), False)
+	test("Rule AND 3", and_rule.match(15), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.OR
+def rule_match_or():
+	greater_rule = Rule(RuleType.GREATER, 3)
+	or_rule = Rule(RuleType.OR, [Rule(RuleType.IS, 3), greater_rule]) # >= 3
+	test("Rule OR 1", or_rule.match(3), True)
+	test("Rule OR 2", or_rule.match(5), True)
+	test("Rule OR 3", or_rule.match(-3), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.OR
+def rule_match_contain():
+	contain_rule = Rule(RuleType.CONTAIN, 'h') # contains letter h
+	test("Rule CONTAIN 1", contain_rule.match("hello"), True)
+	test("Rule CONTAIN 2", contain_rule.match("world"), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.XOR
+def rule_match_xor():
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+	test("Rule XOR 1", xor_rule.match("world"), True)
+	test("Rule XOR 2", xor_rule.match("help"), True)
+	test("Rule XOR 3", xor_rule.match("hello"), False)
+	test("Rule XOR 4", xor_rule.match("animal"), False)
+
+# test Rule.match(value) when Rule.rule_type == RuleType.NOT
+def rule_match_not():
+	not_rule = Rule(RuleType.NOT, Rule(RuleType.IS, 6)) # not 6
+	test("Rule NOT 1", not_rule.match(3), True)
+	test("Rule NOT 2", not_rule.match(6), False)
+
+# -----------------------------------------------------------------------------
+# -------------------------- METHOD TESTS -------------------------------------
+# -----------------------------------------------------------------------------
+
+# tests Rule.__init__()
+def init_rule():
+	rule = Rule(RuleType.GREATER, 5)
+	test("Rule Construction Type", rule.rule_type, RuleType.GREATER)
+	test("Rule Construction Value", rule.value, 5)
+
+# tests Rule.__eq__()
+def rule_eq():
+	rule1 = Rule(RuleType.GREATER, 5)
+	rule2 = Rule(RuleType.GREATER, 5)
+	rule3 = Rule(RuleType.GREATER, 3)
+	rule4 = Rule(RuleType.LESS, 5)
+	test("Rule Equality", rule1 == rule2, True)
+	test("Rule Inequality 1", rule1 == rule3, False)
+	test("Rule Inequality 2", rule1 == rule4, False)
+
+# tests Rule.match(value)
+def rule_match():
+	rule_match_is()
+	rule_match_greater()
+	rule_match_less()
+	rule_match_and()
+	rule_match_or()
+	rule_match_contain()
+	rule_match_xor()
+	rule_match_not()
+
+# tests Property.__init__()
+def init_property():
+	rule = Rule(RuleType.GREATER, 5)
+	prop = Property("count", rule)
+	test("Property Construction Name", prop.name, "count")
+	test("Property Construction Rule", prop.rule, rule)
+
+# tests Property.__eq__()
+def property_eq():
+	rule = Rule(RuleType.GREATER, 5)
+	prop1 = Property("count", rule)
+	prop2 = Property("count", rule)
+	prop3 = Property("name", rule)
+	prop4 = Property("count", Rule(RuleType.LESS, 10))
+	test("Property Equality", prop1 == prop2, True)
+	test("Property Inequality 1", prop1 == prop3, False)
+	test("Property Inequality 2", prop1 == prop4, False)
+
+# tests Property.match(value)
+def property_match():
+	rule = Rule(RuleType.GREATER, 5)
+	prop = Property("count", rule)
+	test("Property Match 1", prop.match(7), True)
+	test("Property Match 1", prop.match(5), False)
+
+# tests Definition.__init__()
+def init_definition():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# the expected value of definition.prop
+	exp_prop = {"Name": name_prop, "Value": valu_prop}
+
+	test("Definition Construction Name", definition.name, "TestyDef")
+	test("Definition Construction Properties", definition.props, exp_prop)
+
+# tests Definition.__eq__()
+def definition_eq():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run the test
+	def1 = Definition("TestyDef", [name_prop, valu_prop])
+	def2 = Definition("TestyDef", [name_prop, valu_prop])
+	def3 = Definition("TestDef", [name_prop, valu_prop])
+	def4 = Definition("TestyDef", [name_prop])
+	test("Definition Equality", def1 == def2, True)
+	test("Definition Inequality 1", def1 == def3, False)
+	test("Definition Inequality 2", def1 == def4, False)
+
+# tests Definition.match(Thing)
+def definition_match():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# define a thing for testing
+	thing = Thing("TestyThingy", attributes={"Name": "Hello", "Value": 4})
+	test("Definition Match 1", definition.match(thing), True)
+	thing = Thing("TestyThingy", attributes={"Name": "hello", "Value": 4})
+	test("Definition Match 2", definition.match(thing), False)
+	thing = Thing("TestyThingy", attributes={"Name": "Hello", "Value": 3})
+	test("Definition Match 3", definition.match(thing), False)
+
+# tests Thing.__init()
+def init_thing():
+
+	# test thing.name
+	thing = Thing("TestyThingy")
+	test("Thing Construction ID", thing.identifier, "TestyThingy")
+
+	# test thing.attrs and thing.definition
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+	test("Thing Construction Properties", thing.attrs, attrs)
+	test("Thing Construction Definition", thing.definition, "TestyDef")
+
+# tests Thing.__eq__()
+def thing_eq():
+	attrs = {"Name": "Hello", "Value": 3}
+	thing1 = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+	thing2 = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+	thing3 = Thing("SuperThing", attributes=attrs, definition="TestyDef")
+	thing4 = Thing("TestyThing", definition="TestyDef")
+	thing5 = Thing("TestyThing", attributes=attrs)
+	test("Thing Equality", thing1 == thing2, True)
+	test("Thing Inequality 1", thing1 == thing3, False)
+	test("Thing Inequality 2", thing1 == thing4, False)
+	test("Thing Inequality 3", thing1 == thing5, False)
+
+# tests Webster.__init__()
+def init_webster():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+
+	# defines Webster
+	webster = Webster(brain=[thing], dictionary=[definition])
+
+	# tests for the correct values
+	dict_test = webster.dictionary["TestyDef"]
+	test("Webster Construction Dictionary", dict_test, definition)
+	test("Webster Construction Brain", webster.brain["TestyThingy"], thing)
+
+# tests Webster.__eq__()
+def webster_eq():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
+
+	# defines Webster
+	webster1 = Webster(brain=[thing], dictionary=[definition])
+	webster2 = Webster(brain=[thing], dictionary=[definition])
+	webster3 = Webster(dictionary=[definition])
+	webster4 = Webster(brain=[thing])
+	test("Webster Equality", webster1 == webster2, True)
+	test("Webster Inequality 1", webster1 == webster3, False)
+	test("Webster Inequality 2", webster1 == webster4, False)
+
+# tests Webster.get_definition(name)
+def webster_get_definition():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# defines Webster
+	webster = Webster(dictionary=[definition])
+
+	# tests to get the definition
+	test_result = webster.get_definition("TestyDef")
+	test("Webster Get Definition", test_result, definition)
+
+# tests Webster.get_thing(identifier)
+def webster_get_thing():
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs)
+
+	webster = Webster(brain=[thing]) # define Webster
+
+	# run test
+	test("Webster Get Thing", webster.get_thing("TestyThingy"), thing)
+
+# tests Webster.add_definition()
+def webster_add_definition():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# runs test
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result = webster.get_definition("TestyDef")
+	test("Webster Add Definition", result, definition)
+
+# tests Webster.add_thing()
+def webster_add_thing():
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs)
+
+	# run the test
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	test("Webster Add Thing", webster.get_thing("TestyThingy"), thing)
+
+# tests Webster.get_property()
+def webster_get_prop():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result = webster.get_property("TestyDef", "Name")
+	test("Webster Get Property", result, name_prop)
+
+# tests Webster.get_rule()
+def webster_get_rule():
 	
-	print("Dictionary Length: " + str(len(webster.dictionary)))
-	print("Type: " + webster.dictionary[0].__class__.__name__)
-	print("Name: " + webster.dictionary[0].name)
-	print("Properties Type: " + webster.dictionary[0].properties.__class__.__name__)
-	print("Properties:")
-	for key, value in webster.dictionary[0].properties.items():
-		print("    " + key + ": " + value.__class__.__name__)
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
 
-# test Webster.get_definition()
-def definition_fetch():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name" : None,
-									"Group": None,
-									"Taste": None})
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result = webster.get_rule("TestyDef", "Name")
+	test("Webster Get Rule", result, xor_rule)
+
+# tests Webster.get_attribute()
+def webster_get_attr():
+	attrs = {"Name": "Hello", "Value": 3}
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	result = webster.get_attribute("TestyThingy", "Name")
+	test("Webster Get Attribute", result, "Hello")
+
+# tests Webster.set_property_rule()
+def webster_set_rule():
 	
-	food = webster.get_definition("Food")
-	print("Type: " + food.__class__.__name__)
-	print("Name: " + food.name)
-	print("Properties Type: " + food.properties.__class__.__name__)
-	print("Properties:")
-	for key, value in food.properties.items():
-		print("    " + key + ": " + value.__class__.__name__)
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+	new_rule = Rule(RuleType.IS, "Hello")
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	webster.set_property_rule("TestyDef", "Name", new_rule)
+	test("Webster Set Rule", webster.get_rule("TestyDef", "Name"), new_rule)
+
+# tests Webster.add_property()
+def webster_add_prop():
 	
-	try: webster.get_definition("Money")
-	except: print("An error returned, as expected")
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
 
-	print("Dictionary Length: " + str(len(webster.dictionary)))
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
 
-# test Webster.add_object()
-def object_addition():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name" : None,
-									"Group": None,
-									"Taste": None})
-	webster.add_object("0", "Food")
-	print("Type: " + webster.memory[0].__class__.__name__)
-	print("Name: " + webster.memory[0].name)
-	print("Properties Type: " + webster.memory[0].properties.__class__.__name__)
-	print("Properties:")
-	for key, value in webster.memory[0].properties.items():
-		print("    " + key + ": " + value.__class__.__name__)
-	print("Memory Length: " + str(len(webster.memory)))
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop])
+	webster.add_property("TestyDef", "Value", and_rule)
+	result = webster.get_property("TestyDef", "Value")
+	test("Webster Add Property", result, valu_prop)
 
-# test Webster.get_object()
-def object_fetch():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                	"Group": None,
-                                	"Taste": None})
-	webster.add_object("0", "Food")
-	food = webster.get_object("0")
+# tests Webster.set_attribute()
+def webster_set_attr():
+	attrs = {"Name": "Hello"}
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	webster.set_attribute("TestyThingy", "Value", 3)
+	result = webster.get_attribute("TestyThingy", "Value")
+	test("Webster Set Attribute", result, 3)
 
-	print("Type: " + food.__class__.__name__)
-	print("Name: " + food.name)
-	print("Properties Type: " + food.properties.__class__.__name__)
-	print("Properties:")
-	for key, value in food.properties.items():
-		print("    " + key + ": " + value.__class__.__name__)
-	print("Memory Length: " + str(len(webster.memory)))
-
-# test Webster._get_definition_index()
-def index_of_definitions():
-
-	# populate the dictionary
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                  	"Group": None,
-                                  	"Taste": None})
-	webster.add_definition("Color", {"General Name": None,
-									 "Specfic Name": None,
-									 "Red": None,
-									 "Green": None,
-									 "Blue": None,
-									 "Hue": None,
-									 "Saturation": None,
-									 "Brightness": None})
-	webster.add_definition("Number", {"Value": None,
-									  "Spelling": None})
-
-	food = webster._get_definition_index("Food")
-	color = webster._get_definition_index("Color")
-	number = webster._get_definition_index("Number")
-
-	print("Food Index: " + str(food))
-	print("Color Index: " + str(color))
-	print("Number Index: " + str(number))
-
-# test Webster._get_object_index()
-def index_of_objects():
-
-	# populate the dictionary
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                 "Group": None,
-                                 "Taste": None})
-	webster.add_definition("Color", {"General Name": None,
-                                  "Specfic Name": None,
-                                  "Red": None,
-                                  "Green": None,
-                                  "Blue": None,
-                                  "Hue": None,
-                                  "Saturation": None,
-                                  "Brightness": None})
-	webster.add_definition("Number", {"Value": None,
-                                   "Spelling": None})
-
-	# populate the memory
-	webster.add_object("Apple", "Food")
-	webster.add_object("Cheese", "Food")
-	webster.add_object("Carrot", "Food")
-	webster.add_object("Red", "Color")
-	webster.add_object("Green", "Color")
-	webster.add_object("Purple", "Color")
-	webster.add_object("1", "Number")
-	webster.add_object("3", "Number")
-
-	print("Apple Index: " + str(webster._get_object_index("Apple")))
-	print("Cheese Index: " + str(webster._get_object_index("Cheese")))
-	print("Carrot Index: " + str(webster._get_object_index("Carrot")))
-	print("Red Index: " + str(webster._get_object_index("Red")))
-	print("Green Index: " + str(webster._get_object_index("Green")))
-	print("Purple Index: " + str(webster._get_object_index("Purple")))
-	print("1 Index: " + str(webster._get_object_index("1")))
-	print("3 Index: " + str(webster._get_object_index("3")))
-
-# test Webster.get_definition_property()
-def check_definition_properties():
-	webster = webster_py.Webster()
-	webster.add_definition("Apple", {"Name": "Apple",
-                                  	 "Group": "Fruit",
-									 "Taste": "Sweet",
-									 "Species": None,
-									 "Color": None})
+# tests Webster.has_property()
+def webster_has_prop():
 	
-	name = webster.get_definition_property("Apple", "Name")
-	group = webster.get_definition_property("Apple", "Group")
-	taste = webster.get_definition_property("Apple", "Taste")
-	species = webster.get_definition_property("Apple", "Species")
-	color = webster.get_definition_property("Apple", "Color")
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
 
-	print("Name: " + name)
-	print("Group: " + group)
-	print("Taste: " + taste)
-	print("Species: " + str(species))
-	print("Color: " + str(color))
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
 
-# test Webster.get_object_property()
-def check_object_properties():
-	webster = webster_py.Webster()
-	webster.add_definition("Apple", {"Name": "Apple",
-                                  	 "Group": "Fruit",
-									 "Taste": "Sweet",
-									 "Species": None,
-									 "Color": None})
-	webster.add_object("0", "Apple")
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result1 = webster.has_property("TestyDef", "Name")
+	result2 = webster.has_property("TestyDef", "Count")
+	test("Webster Has Property 1", result1, True)
+	test("Webster Has Property 2", result2, False)
 
-	name = webster.get_object_property("0", "Name")
-	group = webster.get_object_property("0", "Group")
-	taste = webster.get_object_property("0", "Taste")
-	species = webster.get_object_property("0", "Species")
-	color = webster.get_object_property("0", "Color")
+# tests Webster.has_attribute()
+def webster_has_attr():
+	attrs = {"Name": "Hello", "Value": 3}
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	result1 = webster.has_attribute("TestyThingy", "Name")
+	result2 = webster.has_attribute("TestyThingy", "Count")
+	test("Webster Has Attribute 1", result1, True)
+	test("Webster Has Attribute 2", result2, False)
 
-	print("Name: " + name)
-	print("Group: " + group)
-	print("Taste: " + taste)
-	print("Species: " + str(species))
-	print("Color: " + str(color))
+# tests Webster.has_definition()
+def webster_has_def():
 
-# test Webster.definition_of_type()
-def definition_clone():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                 "Group": None,
-                                 "Taste": None})
-	webster.definition_of_type("Apple", "Food")
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
 
-	name = webster.get_definition_property("Apple", "Name")
-	group = webster.get_definition_property("Apple", "Group")
-	taste = webster.get_definition_property("Apple", "Taste")
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
 
-	print("Name: " + str(name))
-	print("Group: " + str(group))
-	print("Taste: " + str(taste))
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
 
-# test Webster._get_definition_property_index()
-def check_definition_property_index():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                            		"Group": None,
-                                	"Taste": None})
-	
-	name_index = str(webster._get_definition_property_index(0, "Name"))
-	group_index = str(webster._get_definition_property_index(0, "Group"))
-	taste_index = str(webster._get_definition_property_index(0, "Taste"))
+	# define a thing
+	attrs1 = {"Name": "Hello", "Value": 5}
+	attrs2 = {"Name": "hello", "Value": 1}
+	thing1 = Thing("Thing 1", attributes=attrs1, definition="TestyDef")
+	thing2 = Thing("Thing 2", attributes=attrs2)
+	thing3 = Thing("Thing Red", attributes=attrs2, definition="TestyDef")
+	thing4 = Thing("Thing Blue", attributes=attrs1)
+	brain = [thing1, thing2, thing3, thing4]
 
-	print("Name Index: " + name_index)
-	print("Group Index: " + group_index)
-	print("Taste Index: " + taste_index)
+	# runs test
+	webster = Webster(brain=brain, dictionary=[definition])
+	result1 = webster.has_definition("Thing 1", "TestyDef")
+	result2 = webster.has_definition("Thing 2", "TestyDef")
+	result3 = webster.has_definition("Thing Red", "TestyDef")
+	result4 = webster.has_definition("Thing Blue", "TestyDef")
+	test("Webster Has Definition 1", result1, True)
+	test("Webster Has Definition 2", result2, False)
+	test("Webster Has Definition 3", result3, True)
+	test("Webster Has Definition 4", result4, True)
 
-# test Webster._get_object_property_index()
-def check_object_property_index():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                	"Group": None,
-                                	"Taste": None})
-	webster.add_object("Apple", "Food")
+# -----------------------------------------------------------------------------
+# -------------------------- CLASS TESTS --------------------------------------
+# -----------------------------------------------------------------------------
 
-	name_index = str(webster._get_object_property_index(0, "Name"))
-	group_index = str(webster._get_object_property_index(0, "Group"))
-	taste_index = str(webster._get_object_property_index(0, "Taste"))
+# tests RuleType enumerator
+def rule_type_enum():
+	test("RuleType Is", RuleType.IS, RuleType.IS)
 
-	print("Name Index: " + name_index)
-	print("Group Index: " + group_index)
-	print("Taste Index: " + taste_index)
+# runs all tests for the Rule Class
+def rule_tests():
+	init_rule()
+	rule_eq()
+	rule_match()
 
-# test Webster.set_object_property()
-def set_definition_properties():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                	"Group": None,
-                                	"Taste": None})
-	webster.definition_of_type("Apple", "Food")
+# runs all tests for the Property class
+def prop_tests():
+	init_property()
+	property_eq()
+	property_match()
 
-	webster.set_definition_property("Apple", "Name", "Apple")
-	webster.set_definition_property("Apple", "Group", "Fruit")
-	webster.set_definition_property("Apple", "Taste", "Sweet")
-	webster.set_definition_property("Apple", "Species", None)
-	webster.set_definition_property("Apple", "Color", None)
+# runs all tests for the Definition class
+def def_tests():
+	init_definition()
+	definition_eq()
+	definition_match()
 
-	for name, value in webster.get_definition("Apple").properties.items():
-		print(name + ": " + str(value))
+# runs all tests for the Thing class
+def thing_tests():
+	init_thing()
+	thing_eq()
 
-# test Webster.set_object_property()
-def set_object_properties():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                	"Group": None,
-                                	"Taste": None})
-	webster.add_object("Apple", "Food")
+# runs all tests for the Webster class
+def webster_tests():
+	init_webster()
+	webster_eq()
+	webster_get_definition()
+	webster_get_thing()
+	webster_add_definition()
+	webster_add_thing()
+	webster_get_prop()
+	webster_get_rule()
+	webster_get_attr()
+	webster_set_rule()
+	webster_add_prop()
+	webster_set_attr()
+	webster_has_prop()
+	webster_has_attr()
+	webster_has_def()
 
-	webster.set_object_property("Apple", "Name", "Apple")
-	webster.set_object_property("Apple", "Group", "Fruit")
-	webster.set_object_property("Apple", "Taste", "Sweet")
-	webster.set_object_property("Apple", "Species", None)
-	webster.set_object_property("Apple", "Color", None)
+# -----------------------------------------------------------------------------
+# -------------------------- RUN ALL TESTS ------------------------------------
+# -----------------------------------------------------------------------------
 
-	for name, value in webster.get_object("Apple").properties.items():
-		print(name + ": " + str(value))
+def run_all_tests():
+	rule_type_enum()
+	rule_tests()
+	prop_tests()
+	def_tests()
+	thing_tests()
+	webster_tests()
 
-# test Webster.object_has_property()
-def check_whether_object_has_properties():	
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                	"Group": None,
-                                	"Taste": None})
-	webster.add_object("Apple", "Food")
-
-	name = webster.object_has_property("Apple", "Name")
-	group = webster.object_has_property("Apple", "Group")
-	taste = webster.object_has_property("Apple", "Taste")
-	species = webster.object_has_property("Apple", "Species")
-	color = webster.object_has_property("Apple", "Color")
-
-	print("Contains Name:", name)
-	print("Contains Group:", group)
-	print("Contains Taste:", taste)
-	print("Contains Species:", species)
-	print("Contains Color:", color)
-
-# test Webster.definition_has_property()
-def check_whether_definition_has_properties():
-	webster = webster_py.Webster()
-	webster.add_definition("Food", {"Name": None,
-                                	"Group": None,
-                                	"Taste": None})
-
-	name = webster.definition_has_property("Food", "Name")
-	group = webster.definition_has_property("Food", "Group")
-	taste = webster.definition_has_property("Food", "Taste")
-	species = webster.definition_has_property("Food", "Species")
-	color = webster.definition_has_property("Food", "Color")
-
-	print("Contains Name:", name)
-	print("Contains Group:", group)
-	print("Contains Taste:", taste)
-	print("Contains Species:", species)
-	print("Contains Color:", color)
+if __name__ == "__main__":
+	run_all_tests()
