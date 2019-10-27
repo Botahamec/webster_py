@@ -1,12 +1,5 @@
 """
 Webster is a framework which I hope to use for AI in the future
-
-classes:
-	Rule
-	Property
-	Definition
-	Thing
-	Webster
 """
 
 from enum import Enum
@@ -301,3 +294,21 @@ class Webster:
 
 		self.brain[thing].attrs[name] = value
 		return name
+	
+	def has_property(self, definition, property: str) -> bool:
+		"""
+		Returns true if the Definition has the specified property
+		thing: The name of the Definition to look for
+		attribute: The name of the property to check for
+		"""
+
+		return property in self.dictionary[definition].props
+
+	def has_attribute(self, thing, attribute: str) -> bool:
+		"""
+		Returns true if the Thing has the specified attribute
+		thing: The ID of the Thing to check
+		attribute: The attribute to look for
+		"""
+
+		return attribute in self.brain[thing].attrs

@@ -459,6 +459,38 @@ def webster_set_attr():
 	result = webster.get_attribute("TestyThingy", "Value")
 	test("Webster Set Attribute", result, 3)
 
+# tests Webster.has_property()
+def webster_has_prop():
+	
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# run test
+	webster = Webster()
+	webster.add_definition("TestyDef", [name_prop, valu_prop])
+	result1 = webster.has_property("TestyDef", "Name")
+	result2 = webster.has_property("TestyDef", "Count")
+	test("Webster Has Property 1", result1, True)
+	test("Webster Has Property 2", result2, False)
+
+# tests Webster.has_attribute()
+def webster_has_attr():
+	attrs = {"Name": "Hello", "Value": 3}
+	webster = Webster()
+	webster.add_thing("TestyThingy", attributes=attrs)
+	result1 = webster.has_attribute("TestyThingy", "Name")
+	result2 = webster.has_attribute("TestyThingy", "Count")
+	test("Webster Has Attribute 1", result1, True)
+	test("Webster Has Attribute 2", result2, False)
+
 # -----------------------------------------------------------------------------
 # -------------------------- CLASS TESTS --------------------------------------
 # -----------------------------------------------------------------------------
@@ -504,6 +536,8 @@ def webster_tests():
 	webster_set_rule()
 	webster_add_prop()
 	webster_set_attr()
+	webster_has_prop()
+	webster_has_attr()
 
 # -----------------------------------------------------------------------------
 # -------------------------- RUN ALL TESTS ------------------------------------
