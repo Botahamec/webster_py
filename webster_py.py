@@ -167,3 +167,17 @@ class Webster:
 		if dictionary != None:
 			for definition in dictionary:
 				self.dictionary[definition.name] = definition
+	
+	def get_definition(self, name):
+		"""
+		Gets a definition from the dictionary from its name
+		"""
+
+		return self.dictionary[name]
+	
+	def get_thing(self, identifier):
+		"""
+		Gets a definition from the brain based on its identifier
+		"""
+
+		return self.brain[identifier]

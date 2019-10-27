@@ -189,10 +189,47 @@ def init_webster():
 	thing = Thing("TestyThingy", attributes=attrs, definition="TestyDef")
 
 	# defines Webster
-	webster = Webster([thing], [definition])
+	webster = Webster(brain=[thing], dictionary=[definition])
+
+	# tests for the correct values
 	dict_test = webster.dictionary["TestyDef"]
 	test("Webster Construction Dictionary", dict_test, definition)
 	test("Webster Construction Brain", webster.brain["TestyThingy"], thing)
+
+# tests Webster.get_definition(name)
+def webster_get_definition():
+
+	# define rules to use
+	greater_rule = Rule(RuleType.GREATER, 3)
+	less_rule = Rule(RuleType.LESS, 10)
+	and_rule = Rule(RuleType.AND, [greater_rule, less_rule])
+	contain_rule = Rule(RuleType.CONTAIN, 'h')
+	xor_rule = Rule(RuleType.XOR, [contain_rule, Rule(RuleType.CONTAIN, 'o')])
+
+	# define properties to use
+	name_prop = Property("Name", xor_rule)
+	valu_prop = Property("Value", and_rule)
+
+	# define a definition for testing
+	definition = Definition("TestyDef", [name_prop, valu_prop])
+
+	# defines Webster
+	webster = Webster(dictionary=[definition])
+
+	# tests to get the definition
+	test_result = webster.get_definition("TestyDef")
+	test("Webster Get Definition", test_result, definition)
+
+def webster_get_thing():
+
+	# define a thing
+	attrs = {"Name": "Hello", "Value": 3}
+	thing = Thing("TestyThingy", attributes=attrs)
+
+	webster = Webster(brain=[thing]) # define Webster
+
+	# run test
+	test("Webster Get Thing", webster.get_thing("TestyThingy"), thing)
 
 # tests RuleType enumerator
 def rule_type_enum():
@@ -220,6 +257,8 @@ def thing_tests():
 # runs all tests for the Webster class
 def webster_tests():
 	init_webster()
+	webster_get_definition()
+	webster_get_thing()
 
 def run_all_tests():
 	rule_type_enum()
