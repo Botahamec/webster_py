@@ -19,6 +19,6 @@ class TestValue(unittest.TestCase):
 		self.assertNotEqual(value, Value(ValueType.ATTR, 5))
 		self.assertNotEqual(value, Value(ValueType.NEW, 6))
 
-	def test_new(self):
-		value = Value(ValueType.NEW, 5)
-		self.assertEqual(value.value(), 5)
+	def test_value(self):
+		self.assertEqual(Value(ValueType.NEW, 5).value(), 5)
+		self.assertEqual(Value(ValueType.OPERATE, Operation(OperationType.ADD, Value(ValueType.NEW, 3), Value(ValueType.NEW, 2))).value(), 5)
