@@ -51,7 +51,7 @@ class Value:
 			return self.value_type == other.value_type and \
 				self.helper_value == other.helper_value
 
-	def value(self, thing=None):
+	def value(self, thing=None) -> any:
 		"""
 		Returns the actual value
 
@@ -135,7 +135,7 @@ class Operation:
 			return self.op_type == other.op_type and \
 				self.value1 == other.value1 and self.value2 == self.value2
 
-	def perform(self, thing=None):
+	def perform(self, thing=None) -> any:
 		"""
 		Returns the result of the operation
 
@@ -169,7 +169,7 @@ class Operation:
 
 		# TODO: implement MAP, FILTER, FOREACH, REPEAT
 
-	def value(self, thing=None):
+	def value(self, thing=None) -> Value:
 		"""
 		A value containing the result of the operation
 
@@ -196,7 +196,7 @@ class Rule:
 	"""
 	Contains a RuleType and a value
 
-	RuleType | Value Type | Description
+	RuleType | Value1     | Description
 	------------------------------------
 	IS       | any        | The value in the thing == the value in the rule
 	GREATER  | number     | The value in the thing > the value in the rule
@@ -209,51 +209,133 @@ class Rule:
 	ANY      | rule       | The list has a value which follows the rule
 	"""
 
-	def __init__(self, rule_type: RuleType, value: Value):
+	def __init__(self, rule_type: RuleType, value1: Value, value2: Value) -> "Rule":
 		"""
 		Constructor
 
 		Arguments:
-			rule_type {RuleType} -- [description]
-			value {Value} -- [description]
+			rule_type {RuleType} -- The type of Rule
+			value1 {Value} -- The first value to use
+			value2 {Value} -- The second value
 		"""
 
 		self.rule_type = rule_type
-		self.value = value
+		self.value1 = value1
+		self.value2 = value2
 
-	def __eq__(self, other):
+	def __eq__(self, other: "Rule") -> bool:
+		"""
+		Checks if two Rules are equal
+
+		Arguments:
+			other {Rule} -- the Rule to compare to
+
+		Returns:
+			bool -- whether or not the values are equal
+		"""
+
 		if not isinstance(other, Rule):
 			# don't attempt to compare against unrelated types
 			return NotImplemented
-		return self.rule_type == other.rule_type and self.value == other.value
+		return self.rule_type == other.rule_type and self.value1 == other.value1 and self.value2 == other.value2
 
-	def match(self, value: Value, thing=None) -> bool:
+	def match(self, thing=None) -> bool:
 		"""
-		Checks to see if the given value obeys the rule
-		Returns true if it does, false otherwise
+		Checks if a value matches the Rule
+
+		Arguments:
+			value {Value} -- A Value to check
+
+		Keyword Arguments:
+			thing {Thing} -- The Thing to use when determining the value (default: {None})
+
+		Returns:
+			bool -- returns True if the value matches
 		"""
 
-		if self.rule_type == RuleType.IS: return value.value(thing=thing) == self.value.value(thing=thing)
-		elif self.rule_type == RuleType.GREATER: return value.value(thing=thing) > self.value.value(thing=thing)
-		elif self.rule_type == RuleType.LESS: return value.value(thing=thing) < self.value.value(thing=thing)
+		if self.rule_type == RuleType.IS: return self.value2.value(thing=thing) == self.value1.value(thing=thing)
+		elif self.rule_type == RuleType.GREATER: return self.value2.value(thing=thing) > self.value1.value(thing=thing)
+		elif self.rule_type == RuleType.LESS: return self.value2.value(thing=thing) < self.value1.value(thing=thing)
 		elif self.rule_type == RuleType.AND:
-			for rule in self.value.value(thing=thing):
-				if not rule.match(value): return False
-			return True
+			return self.value1.value(thing=thing).match(thing=Thing) and \
+				self.value2.value(thing=Thing).match(thing=Thing)
 		elif self.rule_type == RuleType.OR:
-			for rule in self.value.value(thing=thing):
-				if rule.match(value): return True
+			for rule in self.value1.value(thing=thing):
+				if rule.match(self.value2): return True
 			return False
 		elif self.rule_type == RuleType.XOR:
 			checks = 0
-			for rule in self.value.value(thing=thing):
-				if rule.match(value): checks += 1
+			for rule in self.value1.value(thing=thing):
+				if rule.match(self.value2): checks += 1
 				if checks > 1: return False
 			if checks == 1: return True
 			return False
-		elif self.rule_type == RuleType.NOT: return not self.value.value(thing=thing).match(value)
-		elif self.rule_type == RuleType.CONTAIN: return self.value.value(thing=thing) in value
+		elif self.rule_type == RuleType.NOT: return not self.value1.value(thing=thing).match(self.value2)
+		elif self.rule_type == RuleType.CONTAIN: return self.value1.value(thing=thing) in self.value2.value(thing=thing)
 		elif self.rule_type == RuleType.ANY:
-			for item in value.value(thing=thing):
-				if not self.value.value(thing=thing).match(value): return False
-			return True
+			for item in self.value2.value(thing=thing):
+				if self.value1.value(thing=thing).match(Value(ValueType.NEW, item)): return True
+			return False
+
+class Definition:
+	"""
+	A name attached to a Rule
+	"""
+
+	def __init__(self, name: str, rule: Rule):
+		"""
+		Constructor
+
+		Arguments:
+			name {str} -- The name of the definition
+			rule {Rule} -- The Rule for determining if a Thing matches the Definition
+		"""
+		self.name = name
+		self.rule = rule
+
+	def __eq__(self, other: "Definition") -> bool:
+		"""
+		Checks to see if two definitions are equal
+
+		Arguments:
+			other {Definition} -- The Definition to compare to
+
+		Returns:
+			bool -- True if the definitions are equal
+		"""
+
+		if not isinstance(other, Definition):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.name == other.name and self.rule == other.rule
+
+class Thing:
+	"""
+	A name attached to a bunch of properties
+	"""
+
+	def __init__(self, name: str, properties: dict, definition=None) -> "Thing":
+
+		self.name = name
+		self.properties = properties
+		if defined is not None:
+			self.defined = True
+		else:
+			self.defined = False
+		self.definition = definition
+
+	def __eq__(self, other: "Thing") -> bool:
+		"""
+		Checks to see if two Things are equal
+
+		Arguments:
+			other {Thing} -- The Thing to compare to
+
+		Returns:
+			bool -- True if the Things are equal
+		"""
+
+		if not isinstance(other, Thing):
+			# don't attempt to compare against unrelated types
+			return NotImplemented
+		return self.name == other.name and self.properties == other.properties
